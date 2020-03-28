@@ -5,8 +5,12 @@ import android.os.Bundle
 
 class MainActivity : AppCompatActivity() {
 
+    private var myGameView: DotsAndBoxesGameView? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+
+        myGameView = DotsAndBoxesGameView(this)
+        setContentView(myGameView)
     }
 }
