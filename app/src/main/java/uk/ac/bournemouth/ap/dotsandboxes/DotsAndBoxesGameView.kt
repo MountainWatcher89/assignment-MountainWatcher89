@@ -95,38 +95,48 @@ class DotsAndBoxesGameView: View
             for(column in 0 until gridRowCount)
             {
                 //If both the row and column are even, the grid element is a dot
-                if((row % 2 == 0) || (column % 2 == 0))
+                if((row % 2 == 0) && (column % 2 == 0))
                 {
                     // Calculate the co-ordinates of the circle
                     val cx = maxGridElementDiameter * column + gridElementRadius
                     val cy = maxGridElementDiameter * row + gridElementRadius
-                    canvas.drawCircle(cx, cy, gridElementRadius, myDotPaint)
+                    canvas.drawCircle(cx, cy, gridElementRadius / 2, myDotPaint)
                 }
                 //If the row number is even, but the column number is odd, then the grid element is a horizontal line
-                else if((row % 2 == 0) || (column % 2 != 0))
+                //else if((row % 2 == 0) || (column % 2 != 0))
+                else if((row % 2 == 0) && (column % 2 != 0))
                 {
                     // Calculate the co-ordinates of the horizontal line
-                    val coordinateX = (maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
-                    val coordinateY = maxGridElementDiameter * row
-
-                    canvas.drawRect(coordinateX, coordinateY, maxGridElementDiameter, (maxGridElementDiameter * 0.3f), myNeuturalBoxPaint)
+                    val leftSideX = (maxGridElementDiameter * column)
+                    val topY = (maxGridElementDiameter * row) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
+                    val rightSideX = (maxGridElementDiameter * (column + 1))
+                    val bottomY = (maxGridElementDiameter * row) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
+                    //(maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
+                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, myLineUndrawnPaint)
                 }
                 //If the row number is odd, but the column number is even, then the grid element is a vertical line
-                else if((row % 2 != 0) || (column % 2 == 0))
+                else if((row % 2 != 0) && (column % 2 == 0))
                 {
                     // Calculate the co-ordinates of the vertical line
-
+                    val leftSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
+                    val topY = (maxGridElementDiameter * row)
+                    val rightSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
+                    val bottomY = (maxGridElementDiameter * (row + 1))
+                    //(maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
+                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, myLineUndrawnPaint)
 
                 }
                 //If both the row number and column number are odd, then the grid element is a box
                 else
                 {
                     // Calculate the co-ordinates of the box
-                    val coordinateX = maxGridElementDiameter * column + gridElementRadius
-                    val coordinateY = maxGridElementDiameter * row + gridElementRadius
-
-                    canvas.drawRect(coordinateX, coordinateY, maxGridElementDiameter, maxGridElementDiameter, myNeuturalBoxPaint)
+                    val leftSideX = (maxGridElementDiameter * column)
+                    val topY = (maxGridElementDiameter * row)
+                    val rightSideX = (maxGridElementDiameter * (column + 1))
+                    val bottomY = (maxGridElementDiameter * (row + 1))
+                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, myNeuturalBoxPaint)
                 }
+
             }
         }
     }
