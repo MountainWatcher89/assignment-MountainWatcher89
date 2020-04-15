@@ -7,8 +7,9 @@ import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableSparseMatrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.SparseMatrix
 import kotlin.random.Random
 
-class StudentDotsBoxGame() : AbstractDotsAndBoxesGame() {
-    override val players: List<Player> = TODO("You will need to get players from your constructor")
+class StudentDotsBoxGame(columns: Int, rows: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
+
+    override val players: List<Player> = receivedPlayerList
 
     override val currentPlayer: Player get()= TODO("Determine the current player, like keeping" +
                                                            "the index into the players list")
@@ -17,6 +18,8 @@ class StudentDotsBoxGame() : AbstractDotsAndBoxesGame() {
     override val boxes: Matrix<DotsAndBoxesGame.Box> = TODO("Create a matrix initialized with your own box type")
 
     override val lines: SparseMatrix<DotsAndBoxesGame.Line> = TODO("Create a matrix initialized with your own line type")
+
+    //Need to add gesture-related variables
 
     override val isFinished: Boolean
         get() = TODO("Provide this getter. Note you can make it a var to do so")
@@ -62,4 +65,6 @@ class StudentDotsBoxGame() : AbstractDotsAndBoxesGame() {
             get() = TODO("Look up the correct lines from the game outer class")
 
     }
+
+    //Need to add another inner class here for gesture events
 }

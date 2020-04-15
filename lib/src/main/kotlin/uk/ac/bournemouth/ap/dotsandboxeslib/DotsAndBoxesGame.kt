@@ -76,7 +76,7 @@ interface DotsAndBoxesGame {
     fun removeOnGameOverListener(listener: GameOverListener)
 
     /**
-     * Remove the given listener from the game over listeners.
+     * Remove the given listener from the game change listeners.
      */
     fun removeOnGameChangeListener(listener: GameChangeListener)
 
