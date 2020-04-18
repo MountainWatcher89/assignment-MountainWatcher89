@@ -90,9 +90,9 @@ class DotsAndBoxesGameView: View
         val gridElementRadius = maxGridElementDiameter / 2
 
         //Draw gid elements on the game board
-        for(row in 0 until gridColumnCount)
+        for(row in 0 until gridRowCount)
         {
-            for(column in 0 until gridRowCount)
+            for(column in 0 until gridColumnCount)
             {
                 //If both the row and column are even, the grid element is a dot
                 if((row % 2 == 0) && (column % 2 == 0))

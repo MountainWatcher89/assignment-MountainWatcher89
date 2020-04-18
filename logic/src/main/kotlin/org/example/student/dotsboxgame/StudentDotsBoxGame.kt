@@ -3,21 +3,27 @@ package org.example.student.dotsboxgame
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.Matrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableMatrix
-import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableSparseMatrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.SparseMatrix
-import kotlin.random.Random
 
-class StudentDotsBoxGame(columns: Int, rows: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
+class StudentDotsBoxGame(gridWidth: Int, gridHeight: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
+
+    //Need to decide if the width and height values include spaces for lines between the boxes
 
     override val players: List<Player> = receivedPlayerList
 
-    override val currentPlayer: Player get()= TODO("Determine the current player, like keeping" +
-                                                           "the index into the players list")
+    private var currentPlayerIndex: Int = 0
+
+    override val currentPlayer: Player
+        get() = players[currentPlayerIndex]
+
 
     // NOTE: you may want to me more specific in the box type if you use that type in your class
-    override val boxes: Matrix<DotsAndBoxesGame.Box> = TODO("Create a matrix initialized with your own box type")
 
-    override val lines: SparseMatrix<DotsAndBoxesGame.Line> = TODO("Create a matrix initialized with your own line type")
+    //override val boxes: Matrix<DotsAndBoxesGame.Box> = TODO("Create a matrix initialized with your own box type")
+    override val boxes: Matrix<StudentBox> = MutableMatrix<StudentBox>(gridWidth, gridHeight, ::StudentBox)
+//https://www.youtube.com/channel/UCV7dSg_qGYnuwMZ8BNO-FQQ/videos
+
+    override val lines: Matrix<StudentLine> = MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
 
     //Need to add gesture-related variables
 
