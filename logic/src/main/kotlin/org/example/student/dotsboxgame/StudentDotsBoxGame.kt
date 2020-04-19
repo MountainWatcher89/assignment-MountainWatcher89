@@ -3,11 +3,13 @@ package org.example.student.dotsboxgame
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.Matrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableMatrix
-import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.SparseMatrix
 
-class StudentDotsBoxGame(gridWidth: Int, gridHeight: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
+class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
 
-    //Need to decide if the width and height values include spaces for lines between the boxes
+    //The width and height values include spaces for lines between the boxes
+
+    private val gridWidth: Int = givenGridWidth
+    private val gridHeight: Int = givenGridHeight
 
     override val players: List<Player> = receivedPlayerList
 
@@ -48,10 +50,54 @@ class StudentDotsBoxGame(gridWidth: Int, gridHeight: Int, receivedPlayerList: Li
             get() = TODO("Provide this getter. Note you can make it a var to do so")
 
 
-        override val adjacentBoxes: Pair<StudentBox?, StudentBox?>
-            get() {
-                TODO("You need to look up the correct boxes for this to work")
+        fun isValid(): Boolean {
+            var result = false
+            //The line is only valid if its X or Y coordinates are greater than 0, and less than
+            if((this.lineX >= 0 && this.lineX < gridWidth) && (this.lineY >= 0 && this.lineY < gridHeight))
+            {
+                //Line is horizontal
+                if (isHorizontal())
+                    result = true
+                //Line is vertical
+                else if (isVertical())
+                    result = true
             }
+            return result
+        }
+
+        //"You need to look up the correct boxes for this to work")
+        override var adjacentBoxes: Pair<StudentBox?, StudentBox?> = Pair(null, null)
+            get() {
+                if (this.isValid())
+                {
+                    //Line is horizontal
+                    if (isHorizontal())
+                        //Get the box above and below the line
+                        field = Pair(boxes[this.lineX, this.lineY - 1], boxes[this.lineX, this.lineY + 1])
+                    //Line is vertical
+                    else if (isVertical())
+                        //Get the box to the left and right of the line
+                        field = Pair(boxes[this.lineX - 1, this.lineY], boxes[this.lineX + 1, this.lineY])
+                }
+
+                return field
+            }
+
+        fun isHorizontal(): Boolean
+        {
+            if((this.lineX % 2 != 0) && (this.lineY % 2 == 0))
+                return true
+            else
+                return false
+        }
+
+        fun isVertical(): Boolean
+        {
+            if((this.lineX % 2 == 0) && (this.lineY % 2 != 0))
+                return true
+            else
+                return false
+        }
 
         override fun drawLine() {
             TODO("Implement the logic for a player drawing a line. Don't forget to inform the listeners (fireGameChange, fireGameOver)")
@@ -61,15 +107,47 @@ class StudentDotsBoxGame(gridWidth: Int, gridHeight: Int, receivedPlayerList: Li
 
     inner class StudentBox(boxX: Int, boxY: Int) : AbstractBox(boxX, boxY) {
 
-        override val owningPlayer: Player?
-            get() = TODO("Provide this getter. Note you can make it a var to do so")
+        override var owningPlayer: Player? = null
+            get()
+            {
+                return field
+            }
+            set(value)
+            {
+                field = value
+            }
 
         /**
          * This must be lazy or a getter, otherwise there is a chicken/egg problem with the boxes
          */
-        override val boundingLines: Iterable<DotsAndBoxesGame.Line>
-            get() = TODO("Look up the correct lines from the game outer class")
+        //Look up the correct lines from the game outer class
+        override val boundingLines: MutableList<StudentLine> = mutableListOf()
+            get()
+            {
+                return field
+            }
 
+        fun setBoundingLines()
+        {
+            //Get the line above the box
+            (lines[this.boxX, this.boxY - 1])
+
+            //Get the line below the box
+            (lines[this.boxX, this.boxY + 1])
+
+            //Get the line to the left of the box
+            (lines[this.boxX - 1, this.boxY])
+
+            //Get the line to the right of the box
+            (lines[this.boxX + 1, this.boxY])
+        }
+
+        fun isValid(): Boolean {
+            if ((this.boxX % 2 != 0) && (this.boxY % 2 != 0))
+                return true
+            else
+                return false
+        }
     }
 
     //Need to add another inner class here for gesture events
