@@ -4,19 +4,36 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Build
 import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
+import androidx.annotation.RequiresApi
+import org.example.student.dotsboxgame.StudentDotsBoxGame
+import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
+import uk.ac.bournemouth.ap.dotsandboxeslib.Player
+import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 
-class DotsAndBoxesGameView: View
+class DotsAndBoxesGameView : View
 {
     constructor(context: Context?) : super(context)
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
     constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) :
             super(context, attrs, defStyleAttr)
 
-    //Will need to be changed to be variable
-    private val gridColumnCount = 7
-    private val gridRowCount = 7
+    //Default values for grid and player list
+    private var gridColumnCount: Int = 7
+    private var gridRowCount: Int = 7
+    var players: List<Player> = listOf(HumanPlayer(), StudentDotsBoxGame.easyAI())
+
+    //Secondary constructor that accepts new grid size and player list parameters
+    constructor(context: Context?,
+                recColumnCount: Int, recRowCount: Int, recPlayers: List<Player>) : super(context) {
+        this.gridColumnCount = recColumnCount
+        this.gridRowCount = recRowCount
+        this.players = recPlayers
+    }
 
     private var myBackgroundGridPaint: Paint
     private var myDotPaint: Paint
@@ -25,6 +42,10 @@ class DotsAndBoxesGameView: View
     private var myComputerBoxPaint: Paint
     private var myLineUndrawnPaint: Paint
     private var myLineDrawnPaint: Paint
+
+    //Instantiate the StudentDotsBoxGame class
+    private val myGameInstance: StudentDotsBoxGame =
+        StudentDotsBoxGame(3,3, players)
 
     init
     {
@@ -63,6 +84,8 @@ class DotsAndBoxesGameView: View
             color = Color.GREEN
         }
     }
+
+    private val myGestureDetector = GestureDetector(context, myGestureListener())
 
     override fun onDraw(canvas: Canvas)
     {
@@ -140,4 +163,25 @@ class DotsAndBoxesGameView: View
             }
         }
     }
+    //End of onDraw function
+
+    override fun onTouchEvent(ev: MotionEvent): Boolean
+    {
+        return myGestureDetector.onTouchEvent(ev) || super.onTouchEvent(ev)
+    }
+
+    inner class myGestureListener: GestureDetector.SimpleOnGestureListener()
+    {
+        override fun onDown(ev: MotionEvent): Boolean {
+            return true
+        }
+
+        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+            //Calculate what the coordinates of the touch event are
+
+            return true
+        }
+    }
+
+
 }

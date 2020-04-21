@@ -8,15 +8,14 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
     //The width and height values include spaces for lines between the boxes
 
-    private val gridWidth: Int = givenGridWidth
-    private val gridHeight: Int = givenGridHeight
+    private val gridWidth: Int = (givenGridWidth * 2) + 1
+    private val gridHeight: Int = (givenGridHeight * 2) + 1
 
     override val players: List<Player> = receivedPlayerList
 
     private var currentPlayerIndex: Int = 0
 
-    override val currentPlayer: Player
-        get() = players[currentPlayerIndex]
+    override val currentPlayer: Player = players[0]
 
 
     // NOTE: you may want to me more specific in the box type if you use that type in your class
@@ -29,8 +28,7 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
     //Need to add gesture-related variables
 
-    override val isFinished: Boolean
-        get() = TODO("Provide this getter. Note you can make it a var to do so")
+    override val isFinished: Boolean = false
 
     override fun playComputerTurns() {
         var current = currentPlayer
@@ -130,16 +128,16 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
         fun setBoundingLines()
         {
             //Get the line above the box
-            (lines[this.boxX, this.boxY - 1])
+            boundingLines.add(lines[this.boxX, this.boxY - 1])
 
             //Get the line below the box
-            (lines[this.boxX, this.boxY + 1])
+            boundingLines.add(lines[this.boxX, this.boxY + 1])
 
             //Get the line to the left of the box
-            (lines[this.boxX - 1, this.boxY])
+            boundingLines.add(lines[this.boxX - 1, this.boxY])
 
             //Get the line to the right of the box
-            (lines[this.boxX + 1, this.boxY])
+            boundingLines.add(lines[this.boxX + 1, this.boxY])
         }
 
         fun isValid(): Boolean {
@@ -147,6 +145,13 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
                 return true
             else
                 return false
+        }
+    }
+
+    class easyAI(): ComputerPlayer()
+    {
+        override fun makeMove(game: DotsAndBoxesGame) {
+            TODO("Not yet implemented")
         }
     }
 
