@@ -43,6 +43,14 @@ class DotsAndBoxesGameView : View
     private var myLineUndrawnPaint: Paint
     private var myLineDrawnPaint: Paint
 
+    //
+    var myListenerImp = object: DotsAndBoxesGame.GameChangeListener
+    {
+        override fun onGameChange(game: DotsAndBoxesGame) {
+            invalidate()
+        }
+    }
+
     //Instantiate the StudentDotsBoxGame class
     private val myGameInstance: StudentDotsBoxGame =
         StudentDotsBoxGame(3,3, players)
@@ -83,6 +91,8 @@ class DotsAndBoxesGameView : View
             style = Paint.Style.FILL
             color = Color.GREEN
         }
+
+        myGameInstance.setGameChangeListener(myListenerImp)
     }
 
     private val myGestureDetector = GestureDetector(context, myGestureListener())

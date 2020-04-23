@@ -26,9 +26,23 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
     override val lines: Matrix<StudentLine> = MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
 
+    override val isFinished: Boolean = false
+
     //Need to add gesture-related variables
 
-    override val isFinished: Boolean = false
+
+    // Variable that holds the reference to the 'onGameChange' function in the game view class
+    var onGameChangeListener: DotsAndBoxesGame.GameChangeListener? = null
+
+    fun setGameChangeListener(myListenerImp: DotsAndBoxesGame.GameChangeListener)
+    {
+        onGameChangeListener = myListenerImp
+    }
+
+    override fun fireGameChange()
+    {
+        onGameChangeListener?.onGameChange(this)
+    }
 
     override fun playComputerTurns() {
         var current = currentPlayer
