@@ -103,7 +103,7 @@ interface DotsAndBoxesGame {
          * Note that in the game, there is no owner of lines or any difference between lines drawn
          * by any of the players.
          */
-        val isDrawn: Boolean
+        var isDrawn: Boolean
 
         /**
          * A line that is not on the edge separates two boxes. This property provides those boxes.

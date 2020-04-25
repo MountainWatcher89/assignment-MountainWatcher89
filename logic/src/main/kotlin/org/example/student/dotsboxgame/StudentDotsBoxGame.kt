@@ -8,8 +8,8 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
     //The width and height values include spaces for lines between the boxes
 
-    private val gridWidth: Int = (givenGridWidth * 2) + 1
-    private val gridHeight: Int = (givenGridHeight * 2) + 1
+    private val gridWidth: Int = givenGridWidth
+    private val gridHeight: Int = givenGridHeight
 
     override val players: List<Player> = receivedPlayerList
 
@@ -30,6 +30,29 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
     //Need to add gesture-related variables
 
+
+    fun getTurnToken(recColumn: Int, recRow: Int): Player?
+    {
+        return boxes[recColumn, recRow].owningPlayer
+    }
+
+    fun playTurnToken(recColumn: Int, recRow: Int): Boolean
+    {
+        if(currentPlayerIndex < 0)
+        {
+            throw IllegalArgumentException("Current player index cannot be less than 0")
+        }
+
+        for (line in lines)
+        {
+            if(lines[recColumn, recRow].isDrawn == false)
+            {
+                lines[recColumn, recRow].isDrawn = true
+                return true
+            }
+        }
+        return false
+    }
 
     // Variable that holds the reference to the 'onGameChange' function in the game view class
     var onGameChangeListener: DotsAndBoxesGame.GameChangeListener? = null
@@ -58,9 +81,7 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
      * it being an inner class.
      */
     inner class StudentLine(lineX: Int, lineY: Int) : AbstractLine(lineX, lineY) {
-        override val isDrawn: Boolean
-            get() = TODO("Provide this getter. Note you can make it a var to do so")
-
+        override var isDrawn: Boolean = false
 
         fun isValid(): Boolean {
             var result = false

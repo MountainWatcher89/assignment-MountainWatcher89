@@ -4,12 +4,10 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.os.Build
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import androidx.annotation.RequiresApi
 import org.example.student.dotsboxgame.StudentDotsBoxGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
@@ -23,23 +21,45 @@ class DotsAndBoxesGameView : View
             super(context, attrs, defStyleAttr)
 
     //Default values for grid and player list
-    private var gridColumnCount: Int = 7
-    private var gridRowCount: Int = 7
+    private var gridHeight: Int = 7
+    private var gridWidth: Int = 7
     var players: List<Player> = listOf(HumanPlayer(), StudentDotsBoxGame.easyAI())
 
     //Secondary constructor that accepts new grid size and player list parameters
     constructor(context: Context?,
                 recColumnCount: Int, recRowCount: Int, recPlayers: List<Player>) : super(context) {
-        this.gridColumnCount = recColumnCount
-        this.gridRowCount = recRowCount
-        this.players = recPlayers
+
+        //If the game detects a grid height less than 3 or greater than 9, it will set the grid height to 7
+        if(this.gridHeight >= 3 && this.gridHeight <= 9)
+        {
+            this.gridHeight = recColumnCount
+        }
+
+        //If the game detects a grid width less than 3 or greater than 9, it will set the grid width to 7
+        if(this.gridWidth >= 3 && this.gridWidth <= 9)
+        {
+            this.gridWidth = recRowCount
+        }
+
+        //If the game detects a list of players that is too small or too large, it will start the
+        //game with its default player list
+        if (myGameInstance.players.size >= 2 && myGameInstance.players.size <= 4)
+        {
+            this.players = recPlayers
+        }
+
+
+
     }
 
+    //Set the view properties
     private var myBackgroundGridPaint: Paint
     private var myDotPaint: Paint
     private var myNeuturalBoxPaint: Paint
-    private var myPlayerBoxPaint: Paint
-    private var myComputerBoxPaint: Paint
+    private var myPlayer1BoxPaint: Paint
+    private var myPlayer2BoxPaint: Paint
+    private var myPlayer3BoxPaint: Paint
+    private var myPlayer4BoxPaint: Paint
     private var myLineUndrawnPaint: Paint
     private var myLineDrawnPaint: Paint
 
@@ -53,7 +73,7 @@ class DotsAndBoxesGameView : View
 
     //Instantiate the StudentDotsBoxGame class
     private val myGameInstance: StudentDotsBoxGame =
-        StudentDotsBoxGame(3,3, players)
+        StudentDotsBoxGame(gridWidth,gridHeight, players)
 
     init
     {
@@ -72,14 +92,26 @@ class DotsAndBoxesGameView : View
             color = Color.WHITE
         }
 
-        myPlayerBoxPaint = Paint().apply {
+        myPlayer1BoxPaint = Paint().apply {
             style = Paint.Style.FILL
             color = Color.RED
         }
 
-        myComputerBoxPaint = Paint().apply {
+        myPlayer2BoxPaint = Paint().apply {
             style = Paint.Style.FILL
             this.color = Color.rgb(127, 0, 255)
+        }
+
+        myPlayer3BoxPaint = Paint().apply {
+            style = Paint.Style.FILL
+            //Computer player 2 uses a blue paint
+            this.color = Color.rgb(0, 0, 255)
+        }
+
+        myPlayer4BoxPaint = Paint().apply {
+            style = Paint.Style.FILL
+            //Computer player 3 uses an orange paint
+            this.color = Color.rgb(255, 128, 0)
         }
 
         myLineUndrawnPaint = Paint().apply {
@@ -95,21 +127,20 @@ class DotsAndBoxesGameView : View
         myGameInstance.setGameChangeListener(myListenerImp)
     }
 
-    private val myGestureDetector = GestureDetector(context, myGestureListener())
-
     override fun onDraw(canvas: Canvas)
     {
         super.onDraw(canvas)
 
         val maxGridElementDiameter: Float
         var tokenAtPos: Int
-        var paint: Paint
+        var paint: Paint = myNeuturalBoxPaint
+        var paintValue: Int = 0
 
         val viewWidth: Float = width.toFloat()
         val viewHeight: Float = height.toFloat()
 
-        val diameterX: Float= viewWidth / gridColumnCount.toFloat()
-        val diameterY: Float= viewHeight / gridRowCount.toFloat()
+        val diameterX: Float= viewWidth / gridHeight.toFloat()
+        val diameterY: Float= viewHeight / gridWidth.toFloat()
 
         // Choose the smallest of the two
         if (diameterX < diameterY)
@@ -123,10 +154,11 @@ class DotsAndBoxesGameView : View
         val gridElementRadius = maxGridElementDiameter / 2
 
         //Draw gid elements on the game board
-        for(row in 0 until gridRowCount)
+        for(row in 0 until gridWidth)
         {
-            for(column in 0 until gridColumnCount)
+            for(column in 0 until gridHeight)
             {
+
                 //If both the row and column are even, the grid element is a dot
                 if((row % 2 == 0) && (column % 2 == 0))
                 {
@@ -136,8 +168,8 @@ class DotsAndBoxesGameView : View
                     canvas.drawCircle(cx, cy, gridElementRadius / 2, myDotPaint)
                 }
                 //If the row number is even, but the column number is odd, then the grid element is a horizontal line
-                //else if((row % 2 == 0) || (column % 2 != 0))
-                else if((row % 2 == 0) && (column % 2 != 0))
+                //else if((row % 2 == 0) && (column % 2 != 0))
+                else if(myGameInstance.lines[row, column].isHorizontal())
                 {
                     // Calculate the co-ordinates of the horizontal line
                     val leftSideX = (maxGridElementDiameter * column)
@@ -145,10 +177,19 @@ class DotsAndBoxesGameView : View
                     val rightSideX = (maxGridElementDiameter * (column + 1))
                     val bottomY = (maxGridElementDiameter * row) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
                     //(maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
-                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, myLineUndrawnPaint)
+
+                    if(myGameInstance.lines[row, column].isDrawn)
+                    {
+                        paint = myLineDrawnPaint
+                    }
+                    else
+                    {
+                        paint = myLineUndrawnPaint
+                    }
+                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
                 //If the row number is odd, but the column number is even, then the grid element is a vertical line
-                else if((row % 2 != 0) && (column % 2 == 0))
+                else if(myGameInstance.lines[row, column].isVertical())
                 {
                     // Calculate the co-ordinates of the vertical line
                     val leftSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
@@ -156,8 +197,16 @@ class DotsAndBoxesGameView : View
                     val rightSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
                     val bottomY = (maxGridElementDiameter * (row + 1))
                     //(maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
-                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, myLineUndrawnPaint)
 
+                    if(myGameInstance.lines[row, column].isDrawn)
+                    {
+                        paint = myLineDrawnPaint
+                    }
+                    else
+                    {
+                        paint = myLineUndrawnPaint
+                    }
+                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
                 //If both the row number and column number are odd, then the grid element is a box
                 else
@@ -167,13 +216,109 @@ class DotsAndBoxesGameView : View
                     val topY = (maxGridElementDiameter * row)
                     val rightSideX = (maxGridElementDiameter * (column + 1))
                     val bottomY = (maxGridElementDiameter * (row + 1))
-                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, myNeuturalBoxPaint)
+
+                    //Player index from the player list is retrieved
+                    paintValue = calculateBoxPaint(row, column)
+
+                    //Paint is set based on player index in the players list
+                    if(paintValue == 0)
+                    {
+                        paint = myNeuturalBoxPaint
+                    }
+                    else if(paintValue == 1)
+                    {
+                        paint = myPlayer1BoxPaint
+                    }
+                    else if(paintValue == 2)
+                    {
+                        paint = myPlayer2BoxPaint
+                    }
+                    else if(paintValue == 3)
+                    {
+                        paint = myPlayer3BoxPaint
+                    }
+                    else if(paintValue == 4)
+                    {
+                        paint = myPlayer4BoxPaint
+                    }
+                    canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
 
             }
         }
     }
     //End of onDraw function
+
+    private fun calculateBoxPaint(recRow: Int, recColumn: Int ): Int
+    {
+        //Select the correct colour for the box
+        if(myGameInstance.players.size == 2)
+        {
+            if(myGameInstance.players.get(0) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 1
+            }
+            else if(myGameInstance.players.get(1) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 2
+            }
+            //Box does not have an owning player
+            else
+            {
+                return 0
+            }
+        }
+        else if(myGameInstance.players.size == 3)
+        {
+            if(myGameInstance.players.get(0) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 1
+            }
+            else if(myGameInstance.players.get(1) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 2
+            }
+            else if(myGameInstance.players.get(2) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 3
+            }
+            //Box does not have an owning player
+            else
+            {
+                return 0
+            }
+        }
+        else if(myGameInstance.players.size == 4)
+        {
+            if(myGameInstance.players.get(0) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 1
+            }
+            else if(myGameInstance.players.get(1) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 2
+            }
+            else if(myGameInstance.players.get(2) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 3
+            }
+            else if(myGameInstance.players.get(3) == myGameInstance.getTurnToken(recRow, recColumn))
+            {
+                return 4
+            }
+            //Box does not have an owning player
+            else
+            {
+                return 0
+            }
+        }
+        else
+        {
+            return 0
+        }
+    }
+
+    private val myGestureDetector = GestureDetector(context, myGestureListener())
 
     override fun onTouchEvent(ev: MotionEvent): Boolean
     {
