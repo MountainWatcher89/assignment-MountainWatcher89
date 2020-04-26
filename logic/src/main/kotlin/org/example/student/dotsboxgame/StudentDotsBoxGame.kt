@@ -45,28 +45,45 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
             if(line.isDrawn == false)
             {
                 line.drawLine()
-                //Add check for box completion
 
+                //Check for box completion
                 if(line.adjacentBoxes.first != null)
                 {
-                    if(line.adjacentBoxes.first.checkBoxCompletion())
+                    if(line.adjacentBoxes.first!!.checkBoxCompletion())
+                    {
+                        //Current player is given another turn, because they just completed a box
+                        return true
+                    }
+                }
+                else if(line.adjacentBoxes.second != null)
+                {
+                    if(line.adjacentBoxes.second!!.checkBoxCompletion())
+                    {
+                        //Current player is given another turn, because they just completed a box
+                        return true
+                    }
                 }
                 else
                 {
-                    //Increment the current player variable, so that the next player will get their turn
-                    if(currentPlayerIndex < (players.size - 1))
-                    {
-                        //Increment current player by one
-                        currentPlayerIndex += 1
-                    }
-                    else
-                    {
-                        //Loop back around to the first player in the player list
-                        currentPlayerIndex = 0
-                    }
-                    //Update the current player
-                    currentPlayer = players[currentPlayerIndex]
+                    //Somehow, both adjacent boxes are null
+                    return false
                 }
+
+                //In the event of a player not completing a box on their turn, Increment the current
+                //player variable, so that the next player will get their turn
+                if(currentPlayerIndex < (players.size - 1))
+                {
+                    //Increment current player by one
+                    currentPlayerIndex += 1
+                }
+                else
+                {
+                    //Loop back around to the first player in the player list
+                    currentPlayerIndex = 0
+                }
+                //Update the current player
+                currentPlayer = players[currentPlayerIndex]
+
 
                 return true
             }
@@ -102,7 +119,8 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
             box.setBoundingLines()
         }
 
-
+        //Need to call the method that plays all computer turns, in the event the first player in
+        //the player list is a computer player
     }
 
     /**
@@ -145,25 +163,25 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
                         //Get the box above the line
                         field = Pair(boxes[this.lineX, this.lineY - 1], null)
                     }
-                    //Get the boxes below and above the line
                     else if(isHorizontal())
                     {
+                        //Get the boxes below and above the line
                         field = Pair(boxes[this.lineX, this.lineY - 1], boxes[this.lineX, this.lineY + 1])
                     }
                     //Line is horizontal
-                    //Get the box to the right of the line
                     else if (isVertical() && (this.lineX == 0))
                     {
+                        //Get the box to the right of the line
                         field = Pair(null, boxes[this.lineX + 1, this.lineY])
                     }
-                    //Get the box to the left of the line
                     else if(isVertical() && (this.lineX == (gridWidth - 1)))
                     {
+                        //Get the box to the left of the line
                         field = Pair(boxes[this.lineX - 1, this.lineY], null)
                     }
-                    //Get the boxes to the left and right of the line
                     else if(isVertical())
                     {
+                        //Get the boxes to the left and right of the line
                         field = Pair(boxes[this.lineX - 1, this.lineY], boxes[this.lineX + 1, this.lineY])
                     }
                 }
@@ -233,10 +251,8 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
         {
             //If all surrounding lines of the box has been drawn, the box now belongs to the player
             //that drew the current line
-            if(boundingLines[0].isDrawn &&
-                boundingLines[1].isDrawn &&
-                boundingLines[2].isDrawn &&
-                boundingLines[3].isDrawn)
+            if(boundingLines[0].isDrawn && boundingLines[1].isDrawn &&
+                boundingLines[2].isDrawn && boundingLines[3].isDrawn)
             {
                 this.owningPlayer = currentPlayer
                 return true
