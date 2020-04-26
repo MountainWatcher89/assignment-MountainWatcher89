@@ -15,7 +15,7 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
     private var currentPlayerIndex: Int = 0
 
-    override val currentPlayer: Player = players[0]
+    override var currentPlayer: Player = players[currentPlayerIndex]
 
 
     // NOTE: you may want to me more specific in the box type if you use that type in your class
@@ -27,9 +27,6 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
     override val lines: Matrix<StudentLine> = MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
 
     override val isFinished: Boolean = false
-
-    //Need to add gesture-related variables
-
 
     fun getTurnToken(recColumn: Int, recRow: Int): Player?
     {
@@ -45,9 +42,32 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
         for (line in lines)
         {
-            if(lines[recColumn, recRow].isDrawn == false)
+            if(line.isDrawn == false)
             {
-                lines[recColumn, recRow].isDrawn = true
+                line.drawLine()
+                //Add check for box completion
+
+                if(line.adjacentBoxes.first != null)
+                {
+                    if(line.adjacentBoxes.first.checkBoxCompletion())
+                }
+                else
+                {
+                    //Increment the current player variable, so that the next player will get their turn
+                    if(currentPlayerIndex < (players.size - 1))
+                    {
+                        //Increment current player by one
+                        currentPlayerIndex += 1
+                    }
+                    else
+                    {
+                        //Loop back around to the first player in the player list
+                        currentPlayerIndex = 0
+                    }
+                    //Update the current player
+                    currentPlayer = players[currentPlayerIndex]
+                }
+
                 return true
             }
         }
@@ -75,6 +95,16 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
         }
     }
 
+    init
+    {
+        for(box in boxes)
+        {
+            box.setBoundingLines()
+        }
+
+
+    }
+
     /**
      * This is an inner class as it needs to refer to the game to be able to look up the correct
      * lines and boxes. Alternatively you can have a game property that does the same thing without
@@ -99,18 +129,43 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
         }
 
         //"You need to look up the correct boxes for this to work")
+        //Need to add checks so that a line on the edge of the grid only has one adjacent box
         override var adjacentBoxes: Pair<StudentBox?, StudentBox?> = Pair(null, null)
             get() {
                 if (this.isValid())
                 {
                     //Line is horizontal
-                    if (isHorizontal())
-                        //Get the box above and below the line
+                    if (isHorizontal() && (this.lineY == 0))
+                    {
+                        //Get the box below the line
+                        field = Pair(null, boxes[this.lineX, this.lineY + 1])
+                    }
+                    else if(isHorizontal() && (this.lineY == (gridHeight - 1)))
+                    {
+                        //Get the box above the line
+                        field = Pair(boxes[this.lineX, this.lineY - 1], null)
+                    }
+                    //Get the boxes below and above the line
+                    else if(isHorizontal())
+                    {
                         field = Pair(boxes[this.lineX, this.lineY - 1], boxes[this.lineX, this.lineY + 1])
-                    //Line is vertical
-                    else if (isVertical())
-                        //Get the box to the left and right of the line
+                    }
+                    //Line is horizontal
+                    //Get the box to the right of the line
+                    else if (isVertical() && (this.lineX == 0))
+                    {
+                        field = Pair(null, boxes[this.lineX + 1, this.lineY])
+                    }
+                    //Get the box to the left of the line
+                    else if(isVertical() && (this.lineX == (gridWidth - 1)))
+                    {
+                        field = Pair(boxes[this.lineX - 1, this.lineY], null)
+                    }
+                    //Get the boxes to the left and right of the line
+                    else if(isVertical())
+                    {
                         field = Pair(boxes[this.lineX - 1, this.lineY], boxes[this.lineX + 1, this.lineY])
+                    }
                 }
 
                 return field
@@ -132,8 +187,11 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
                 return false
         }
 
-        override fun drawLine() {
-            TODO("Implement the logic for a player drawing a line. Don't forget to inform the listeners (fireGameChange, fireGameOver)")
+        override fun drawLine()
+        {
+            isDrawn = true
+
+            fireGameChange()
             // NOTE read the documentation in the interface, you must also update the current player.
         }
     }
@@ -155,10 +213,6 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
          */
         //Look up the correct lines from the game outer class
         override val boundingLines: MutableList<StudentLine> = mutableListOf()
-            get()
-            {
-                return field
-            }
 
         fun setBoundingLines()
         {
@@ -173,6 +227,24 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
             //Get the line to the right of the box
             boundingLines.add(lines[this.boxX + 1, this.boxY])
+        }
+
+        fun checkBoxCompletion(): Boolean
+        {
+            //If all surrounding lines of the box has been drawn, the box now belongs to the player
+            //that drew the current line
+            if(boundingLines[0].isDrawn &&
+                boundingLines[1].isDrawn &&
+                boundingLines[2].isDrawn &&
+                boundingLines[3].isDrawn)
+            {
+                this.owningPlayer = currentPlayer
+                return true
+            }
+            else
+            {
+                return false
+            }
         }
 
         fun isValid(): Boolean {

@@ -1,5 +1,6 @@
 package uk.ac.bournemouth.ap.dotsandboxes
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -63,6 +64,7 @@ class DotsAndBoxesGameView : View
     private var myLineUndrawnPaint: Paint
     private var myLineDrawnPaint: Paint
 
+    var maxGridElementDiameter: Float = 0f
     //
     var myListenerImp = object: DotsAndBoxesGame.GameChangeListener
     {
@@ -131,8 +133,6 @@ class DotsAndBoxesGameView : View
     {
         super.onDraw(canvas)
 
-        val maxGridElementDiameter: Float
-        var tokenAtPos: Int
         var paint: Paint = myNeuturalBoxPaint
         var paintValue: Int = 0
 
@@ -331,8 +331,21 @@ class DotsAndBoxesGameView : View
             return true
         }
 
-        override fun onSingleTapUp(e: MotionEvent?): Boolean {
-            //Calculate what the coordinates of the touch event are
+        override fun onSingleTapUp(ev: MotionEvent): Boolean {
+            //Calculate width of a grid element space in pixels
+            val elementWidth = width / maxGridElementDiameter
+
+            //Calculate the column the user has touched
+            val columnTouch = (ev.x / elementWidth).toInt()
+
+            //Calculate the row the user has touched
+            val rowTouch = (ev.y / elementWidth).toInt()
+
+            //Tell the game logic that the user has chosen a line
+            myGameInstance.playTurnToken(columnTouch, rowTouch)
+
+            //Get the computer players to make their moves
+
 
             return true
         }
