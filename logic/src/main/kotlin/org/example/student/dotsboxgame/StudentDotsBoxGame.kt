@@ -1,32 +1,54 @@
 package org.example.student.dotsboxgame
 
+import kotlin.random.Random
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.Matrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableMatrix
 
-class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
+class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
 
     //The width and height values include spaces for lines between the boxes
 
-    private val gridWidth: Int = givenGridWidth
-    private val gridHeight: Int = givenGridHeight
-
+    private val gridWidth: Int = receivedGridWidth
+    private val gridHeight: Int = receivedGridHeight
     override val players: List<Player> = receivedPlayerList
+    override val isFinished: Boolean = false
 
     private var currentPlayerIndex: Int = 0
-
     override var currentPlayer: Player = players[currentPlayerIndex]
-
 
     // NOTE: you may want to me more specific in the box type if you use that type in your class
 
-    //override val boxes: Matrix<DotsAndBoxesGame.Box> = TODO("Create a matrix initialized with your own box type")
     override val boxes: Matrix<StudentBox> = MutableMatrix<StudentBox>(gridWidth, gridHeight, ::StudentBox)
-//https://www.youtube.com/channel/UCV7dSg_qGYnuwMZ8BNO-FQQ/videos
 
     override val lines: Matrix<StudentLine> = MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
 
-    override val isFinished: Boolean = false
+    //A list of all of the un-drawn lines of the game, and their coordinates on the grid
+    var unDrawnLines : MutableList<MutableList<Pair<Int, Int>>> = createDrawnLines()
+
+    fun createDrawnLines(): MutableList<MutableList<Pair<Int, Int>>>
+    {
+        val retVal = mutableListOf<MutableList<Pair<Int, Int>>>()
+        //The 2D array is filled with zeroes, indicating that none of the lines have been drawn yet
+        for(gridX in 0 until gridWidth)
+        {
+            val individualColumn = mutableListOf<Pair<Int, Int>>()
+            for (gridY in 0 until gridHeight)
+            {
+                //Line will only be added if it has valid coordinates
+                if(lines[gridX, gridY].isValid())
+                {
+                    individualColumn.add(Pair(gridX, gridY))
+                }
+            }
+            //Add the current column to the 2D array
+            retVal.add(individualColumn)
+        }
+        return retVal
+    }
+
+    //https://www.youtube.com/channel/UCV7dSg_qGYnuwMZ8BNO-FQQ/videos
+
 
     fun getTurnToken(recColumn: Int, recRow: Int): Player?
     {
@@ -40,53 +62,54 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
             throw IllegalArgumentException("Current player index cannot be less than 0")
         }
 
-        for (line in lines)
+        //If the line from the grid of lines selected is not already drawn and is a valid line,
+        // draw the line
+        if(!lines[recColumn, recRow].isDrawn && lines[recColumn, recRow].isValid())
         {
-            if(line.isDrawn == false)
+            lines[recColumn, recRow].drawLine()
+
+            //Check for box completion. If one or both of the boxes adjacent to the drawn line are
+            //completed, the current player is granted an additional turn
+            if(lines[recColumn, recRow].adjacentBoxes.first != null)
             {
-                line.drawLine()
-
-                //Check for box completion
-                if(line.adjacentBoxes.first != null)
+                if(lines[recColumn, recRow].adjacentBoxes.first!!.checkBoxCompletion())
                 {
-                    if(line.adjacentBoxes.first!!.checkBoxCompletion())
-                    {
-                        //Current player is given another turn, because they just completed a box
-                        return true
-                    }
+                    //Current player is given another turn, because they just completed a box
+                    return true
                 }
-                else if(line.adjacentBoxes.second != null)
-                {
-                    if(line.adjacentBoxes.second!!.checkBoxCompletion())
-                    {
-                        //Current player is given another turn, because they just completed a box
-                        return true
-                    }
-                }
-                else
-                {
-                    //Somehow, both adjacent boxes are null
-                    return false
-                }
-
-                //In the event of a player not completing a box on their turn, Increment the current
-                //player variable, so that the next player will get their turn
-                if(currentPlayerIndex < (players.size - 1))
-                {
-                    //Increment current player by one
-                    currentPlayerIndex += 1
-                }
-                else
-                {
-                    //Loop back around to the first player in the player list
-                    currentPlayerIndex = 0
-                }
-                //Update the current player
-                currentPlayer = players[currentPlayerIndex]
-
-
-                return true
             }
+            else if(lines[recColumn, recRow].adjacentBoxes.second != null)
+            {
+                if(lines[recColumn, recRow].adjacentBoxes.second!!.checkBoxCompletion())
+                {
+                    //Current player is given another turn, because they just completed a box
+                    return true
+                }
+            }
+            else
+            {
+                //Somehow, both adjacent boxes are null
+                return false
+            }
+
+            //In the event of a player not completing a box on their turn, Increment the current
+            //player variable, so that the next player will get their turn
+            if(currentPlayerIndex < (players.size - 1))
+            {
+                //Increment current player by one
+                currentPlayerIndex += 1
+            }
+            else
+            {
+                //Loop back around to the first player in the player list
+                currentPlayerIndex = 0
+            }
+            //Update the current player
+            currentPlayer = players[currentPlayerIndex]
+
+
+            return true
+
         }
         return false
     }
@@ -121,6 +144,7 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
 
         //Need to call the method that plays all computer turns, in the event the first player in
         //the player list is a computer player
+        playComputerTurns()
     }
 
     /**
@@ -271,10 +295,42 @@ class StudentDotsBoxGame(givenGridWidth: Int, givenGridHeight: Int, receivedPlay
         }
     }
 
-    class easyAI(): ComputerPlayer()
+    class easyAI(val recName: String): ComputerPlayer()
     {
-        override fun makeMove(game: DotsAndBoxesGame) {
-            TODO("Not yet implemented")
+        public var name: String = ""
+            get()
+        {
+           return field
+        }
+        set(value)
+        {
+            field = value
+        }
+
+        init
+        {
+            this.name = recName
+        }
+
+        override fun makeMove(game: DotsAndBoxesGame)
+        {
+            //Select a random column of the grid
+            val chosenColumn = unDrawnLines.random()
+
+            //Select a random line from the column
+            val chosenColumnLine = chosenColumn.random()
+
+            //Invoke the playTurnToken method using the selected line
+            playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
+
+            //Remove the chosen line from the column of un-drawn lines
+            unDrawnLines[unDrawnLines.indexOf(chosenColumn)].removeAt(chosenColumn.indexOf(chosenColumnLine))
+
+            //Remove the line column from the list if the column is now empty
+            if(chosenColumn.isEmpty())
+            {
+                unDrawnLines.removeAt(unDrawnLines.indexOf(chosenColumn))
+            }
         }
     }
 

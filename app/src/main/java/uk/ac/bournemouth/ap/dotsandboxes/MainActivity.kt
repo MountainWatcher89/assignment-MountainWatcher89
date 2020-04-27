@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         myGameView = DotsAndBoxesGameView(
-            this, 3, 3, listOf(HumanPlayer(), StudentDotsBoxGame.easyAI()))
+            this, 3, 3, listOf(HumanPlayer(), StudentDotsBoxGame.easyAI("")))
         setContentView(myGameView)
     }
 }
