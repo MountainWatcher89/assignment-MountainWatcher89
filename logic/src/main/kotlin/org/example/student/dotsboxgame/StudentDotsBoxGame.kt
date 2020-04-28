@@ -15,15 +15,36 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
 
     private var currentPlayerIndex: Int = 0
     override var currentPlayer: Player = players[currentPlayerIndex]
-
+    private var playerScores = setPlayerScores()
     // NOTE: you may want to me more specific in the box type if you use that type in your class
 
     override val boxes: Matrix<StudentBox> = MutableMatrix<StudentBox>(gridWidth, gridHeight, ::StudentBox)
 
     override val lines: Matrix<StudentLine> = MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
 
+
+    private fun setPlayerScores(): MutableList<Int>
+    {
+        val retVal = mutableListOf<Int>()
+        for (i in 0..players.size)
+        {
+            retVal.add(0)
+        }
+        return retVal
+    }
+
+    private fun getFinalScores(): List<Pair<Player, Int>>
+    {
+        val retVal = mutableListOf<Pair<Player, Int>>()
+        for (i in 0..players.size)
+        {
+            retVal[i] = Pair(players[i], playerScores[i])
+        }
+        return retVal
+    }
+
     //A list of all of the un-drawn lines of the game, and their coordinates on the grid
-    var unDrawnLines : MutableList<MutableList<Pair<Int, Int>>> = createDrawnLines()
+    var unDrawnLines = createDrawnLines()
 
     fun createDrawnLines(): MutableList<MutableList<Pair<Int, Int>>>
     {
@@ -73,7 +94,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
             {
                 if(lines[recColumn, recRow].adjacentBoxes.first!!.checkBoxCompletion())
                 {
-                    //Current player is given another turn, because they just completed a box
+                    playerCompletedABox()
                     return true
                 }
             }
@@ -81,7 +102,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
             {
                 if(lines[recColumn, recRow].adjacentBoxes.second!!.checkBoxCompletion())
                 {
-                    //Current player is given another turn, because they just completed a box
+                    playerCompletedABox()
                     return true
                 }
             }
@@ -89,6 +110,14 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
             {
                 //Somehow, both adjacent boxes are null
                 return false
+            }
+
+            //Check if all lines have been drawn
+            if(unDrawnLines.isEmpty())
+            {
+                //Fire the game over event
+                fireMyGameOver(getFinalScores())
+                return true
             }
 
             //In the event of a player not completing a box on their turn, Increment the current
@@ -113,17 +142,38 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
         return false
     }
 
+    fun playerCompletedABox()
+    {
+        //Update the player score
+        playerScores[currentPlayerIndex] ++
+
+        //Current player is not changed, because they just completed a box
+    }
+
     // Variable that holds the reference to the 'onGameChange' function in the game view class
     var onGameChangeListener: DotsAndBoxesGame.GameChangeListener? = null
 
-    fun setGameChangeListener(myListenerImp: DotsAndBoxesGame.GameChangeListener)
+    fun setGameChangeListener(myGameChangeListenerImp: DotsAndBoxesGame.GameChangeListener)
     {
-        onGameChangeListener = myListenerImp
+        onGameChangeListener = myGameChangeListenerImp
     }
 
-    override fun fireGameChange()
+    fun fireMyGameChange()
     {
         onGameChangeListener?.onGameChange(this)
+    }
+
+    //Variable that holds the refernce to the 'onGameOver' function in the game view class
+    var onGameOverListener: DotsAndBoxesGame.GameOverListener? = null
+
+    fun setGameOverListener(myGameOverListenerImp: DotsAndBoxesGame.GameOverListener)
+    {
+        onGameOverListener = myGameOverListenerImp
+    }
+
+    fun fireMyGameOver(playerScores: List<Pair<Player, Int>>)
+    {
+        onGameOverListener?.onGameOver(this, playerScores)
     }
 
     override fun playComputerTurns() {
@@ -138,7 +188,10 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
     {
         for(box in boxes)
         {
-            box.setBoundingLines()
+            if(box.isValid())
+            {
+                box.setBoundingLines()
+            }
         }
 
         //Need to call the method that plays all computer turns, in the event the first player in
@@ -232,7 +285,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
         {
             isDrawn = true
 
-            fireGameChange()
+            fireMyGameChange()
             // NOTE read the documentation in the interface, you must also update the current player.
         }
     }
@@ -336,5 +389,4 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
         }
     }
 
-    //Need to add another inner class here for gesture events
 }

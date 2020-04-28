@@ -1,6 +1,5 @@
 package uk.ac.bournemouth.ap.dotsandboxes
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -63,19 +62,27 @@ class DotsAndBoxesGameView : View
     private var myPlayer3BoxPaint: Paint
     private var myPlayer4BoxPaint: Paint
     private var myLineUndrawnPaint: Paint
-    private var myLineDrawnPaint: Paint
+    private var myLineDrawnByPlayerPaint: Paint
+    private var myLineDrawnByComputerPaint: Paint
 
     var maxGridElementDiameter: Float = 0f
     //
-    var myListenerImp = object: DotsAndBoxesGame.GameChangeListener
+    var myGameChangeListenerImp = object: DotsAndBoxesGame.GameChangeListener
     {
         override fun onGameChange(game: DotsAndBoxesGame) {
             invalidate()
         }
     }
 
+    var myGameOverListenerImp = object: DotsAndBoxesGame.GameOverListener
+    {
+        override fun onGameOver(game: DotsAndBoxesGame, myG) {
+            showGameOverResults()
+        }
+    }
+
     //Instantiate the StudentDotsBoxGame class
-    private val myGameInstance: StudentDotsBoxGame =
+    val myGameInstance: StudentDotsBoxGame =
         StudentDotsBoxGame(gridWidth,gridHeight, players)
 
     init
@@ -122,12 +129,17 @@ class DotsAndBoxesGameView : View
             color = Color.LTGRAY
         }
 
-        myLineDrawnPaint = Paint().apply {
+        myLineDrawnByPlayerPaint = Paint().apply {
             style = Paint.Style.FILL
-            color = Color.GREEN
+            color = Color.rgb(128, 255, 0)
         }
 
-        myGameInstance.setGameChangeListener(myListenerImp)
+        myLineDrawnByComputerPaint = Paint().apply {
+            style = Paint.Style.FILL
+            color = Color.rgb(0, 153, 76)
+        }
+
+        myGameInstance.setGameChangeListener(myGameChangeListenerImp)
     }
 
     override fun onDraw(canvas: Canvas)
@@ -181,7 +193,7 @@ class DotsAndBoxesGameView : View
 
                     if(myGameInstance.lines[row, column].isDrawn)
                     {
-                        paint = myLineDrawnPaint
+                        paint = myLineDrawnByPlayerPaint
                     }
                     else
                     {
@@ -201,7 +213,7 @@ class DotsAndBoxesGameView : View
 
                     if(myGameInstance.lines[row, column].isDrawn)
                     {
-                        paint = myLineDrawnPaint
+                        paint = myLineDrawnByPlayerPaint
                     }
                     else
                     {
@@ -317,6 +329,12 @@ class DotsAndBoxesGameView : View
         {
             return 0
         }
+    }
+
+
+    private fun showGameOverResults()
+    {
+
     }
 
     private val myGestureDetector = GestureDetector(context, myGestureListener())

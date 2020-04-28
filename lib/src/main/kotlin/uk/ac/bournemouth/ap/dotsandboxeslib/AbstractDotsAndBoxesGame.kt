@@ -39,7 +39,7 @@ abstract class AbstractDotsAndBoxesGame: DotsAndBoxesGame {
     /**
      * Helper function that informs all listeners of the game state change.
      */
-    open fun fireGameChange() {
+    fun fireGameChange() {
         for(listener in onGameChangeListeners) {
             listener.onGameChange(this)
         }
