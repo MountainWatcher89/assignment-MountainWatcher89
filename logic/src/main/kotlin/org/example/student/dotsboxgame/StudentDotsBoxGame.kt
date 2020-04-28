@@ -1,6 +1,5 @@
 package org.example.student.dotsboxgame
 
-import kotlin.random.Random
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.Matrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableMatrix
@@ -312,24 +311,27 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
             this.name = recName
         }
 
-        override fun makeMove(game: DotsAndBoxesGame)
+        override fun makeMove(gameRef: DotsAndBoxesGame)
         {
-            //Select a random column of the grid
-            val chosenColumn = unDrawnLines.random()
-
-            //Select a random line from the column
-            val chosenColumnLine = chosenColumn.random()
-
-            //Invoke the playTurnToken method using the selected line
-            playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
-
-            //Remove the chosen line from the column of un-drawn lines
-            unDrawnLines[unDrawnLines.indexOf(chosenColumn)].removeAt(chosenColumn.indexOf(chosenColumnLine))
-
-            //Remove the line column from the list if the column is now empty
-            if(chosenColumn.isEmpty())
+            if(gameRef is StudentDotsBoxGame)
             {
-                unDrawnLines.removeAt(unDrawnLines.indexOf(chosenColumn))
+                //Select a random column of the grid
+                val chosenColumn = gameRef.unDrawnLines.random()
+
+                //Select a random line from the column
+                val chosenColumnLine = chosenColumn.random()
+
+                //Invoke the playTurnToken method using the selected line
+                gameRef.playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
+
+                //Remove the chosen line from the column of un-drawn lines
+                gameRef.unDrawnLines[gameRef.unDrawnLines.indexOf(chosenColumn)].removeAt(chosenColumn.indexOf(chosenColumnLine))
+
+                //Remove the line column from the list if the column is now empty
+                if(chosenColumn.isEmpty())
+                {
+                    gameRef.unDrawnLines.removeAt(gameRef.unDrawnLines.indexOf(chosenColumn))
+                }
             }
         }
     }

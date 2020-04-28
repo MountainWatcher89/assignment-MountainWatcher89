@@ -24,7 +24,8 @@ class DotsAndBoxesGameView : View
     //Default values for grid and player list
     private var gridHeight: Int = 7
     private var gridWidth: Int = 7
-    var players: List<Player> = listOf(HumanPlayer(), StudentDotsBoxGame.easyAI(""))
+    var players: List<Player> = listOf(HumanPlayer(),
+                                       StudentDotsBoxGame.easyAI("Computer 1"))
 
     //Secondary constructor that accepts new grid size and player list parameters
     constructor(context: Context?,
