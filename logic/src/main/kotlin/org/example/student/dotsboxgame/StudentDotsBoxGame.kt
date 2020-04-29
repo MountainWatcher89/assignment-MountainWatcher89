@@ -15,7 +15,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
 
     private var currentPlayerIndex: Int = 0
     override var currentPlayer: Player = players[currentPlayerIndex]
-    private var playerScores = setPlayerScores()
+    var playerScores = setPlayerScores()
     // NOTE: you may want to me more specific in the box type if you use that type in your class
 
     override val boxes: Matrix<StudentBox> = MutableMatrix<StudentBox>(gridWidth, gridHeight, ::StudentBox)
@@ -386,6 +386,24 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
                     gameRef.unDrawnLines.removeAt(gameRef.unDrawnLines.indexOf(chosenColumn))
                 }
             }
+        }
+    }
+
+    class namedHumanPlayer(recName: String) : HumanPlayer()
+    {
+        public var name: String = ""
+            get()
+            {
+                return field
+            }
+            set(value)
+            {
+                field = value
+            }
+
+        init
+        {
+            this.name = recName
         }
     }
 

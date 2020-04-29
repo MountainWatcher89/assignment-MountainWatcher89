@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
@@ -11,7 +12,6 @@ import android.view.View
 import org.example.student.dotsboxgame.StudentDotsBoxGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
-import uk.ac.bournemouth.ap.dotsandboxeslib.HumanPlayer
 
 class DotsAndBoxesGameView : View
 {
@@ -23,7 +23,7 @@ class DotsAndBoxesGameView : View
     //Default values for grid and player list
     private var gridHeight: Int = 7
     private var gridWidth: Int = 7
-    var players: List<Player> = listOf(HumanPlayer(),
+    var players: List<Player> = listOf(StudentDotsBoxGame.namedHumanPlayer("Player 1"),
                                        StudentDotsBoxGame.easyAI("Computer 1"))
 
     //Secondary constructor that accepts new grid size and player list parameters
@@ -64,6 +64,7 @@ class DotsAndBoxesGameView : View
     private var myLineUndrawnPaint: Paint
     private var myLineDrawnByPlayerPaint: Paint
     private var myLineDrawnByComputerPaint: Paint
+    private var myTextPaint: Paint
 
     var maxGridElementDiameter: Float = 0f
     //
@@ -74,9 +75,11 @@ class DotsAndBoxesGameView : View
         }
     }
 
+    //Need to fix this
     var myGameOverListenerImp = object: DotsAndBoxesGame.GameOverListener
     {
-        override fun onGameOver(game: DotsAndBoxesGame, myG) {
+        override fun onGameOver(game: DotsAndBoxesGame, playerScoreList: List<Pair<Player, Int>>)
+        {
             showGameOverResults()
         }
     }
@@ -139,7 +142,15 @@ class DotsAndBoxesGameView : View
             color = Color.rgb(0, 153, 76)
         }
 
+        myTextPaint = Paint().apply {
+            textAlign = Paint.Align.CENTER
+            textSize = 50.toFloat()
+            typeface = Typeface.SANS_SERIF
+            color = Color.BLACK
+        }
+
         myGameInstance.setGameChangeListener(myGameChangeListenerImp)
+        myGameInstance.setGameOverListener(myGameOverListenerImp)
     }
 
     override fun onDraw(canvas: Canvas)
@@ -152,8 +163,9 @@ class DotsAndBoxesGameView : View
         val viewWidth: Float = width.toFloat()
         val viewHeight: Float = height.toFloat()
 
-        val diameterX: Float= viewWidth / gridHeight.toFloat()
-        val diameterY: Float= viewHeight / gridWidth.toFloat()
+        val diameterX: Float = viewWidth / gridWidth.toFloat()
+        //There needs to be some room for the text that displays the game information
+        val diameterY: Float = viewHeight / (gridHeight.toFloat() * 0.75f)
 
         // Choose the smallest of the two
         if (diameterX < diameterY)
@@ -256,9 +268,31 @@ class DotsAndBoxesGameView : View
                     }
                     canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
-
             }
         }
+
+        //Draw the game text that displays all player scores
+        var textSpace = 10
+        var counter = 0
+        for(player in players)
+        {
+            if(player is StudentDotsBoxGame.namedHumanPlayer)
+            {
+                canvas.drawText(
+                    player.name + " score: " + myGameInstance.playerScores[counter].toString(),
+                                (viewWidth / 2f), (gridHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
+            }
+            else if(player is StudentDotsBoxGame.easyAI)
+            {
+                canvas.drawText(
+                    player.name + " score: " + myGameInstance.playerScores[counter].toString(),
+                                (viewWidth / 2f), (gridHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
+            }
+            counter++
+            textSpace = textSpace + 60
+        }
+
+
     }
     //End of onDraw function
 
