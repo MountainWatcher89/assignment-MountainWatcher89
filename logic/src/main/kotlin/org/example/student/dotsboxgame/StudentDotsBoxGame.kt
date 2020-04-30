@@ -11,7 +11,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
     private val gridWidth: Int = receivedGridWidth
     private val gridHeight: Int = receivedGridHeight
     override val players: List<Player> = receivedPlayerList
-    override val isFinished: Boolean = false
+    override var isFinished: Boolean = false
 
     private var currentPlayerIndex: Int = 0
     override var currentPlayer: Player = players[currentPlayerIndex]
@@ -41,6 +41,23 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
             retVal[i] = Pair(players[i], playerScores[i])
         }
         return retVal
+    }
+
+    fun getWinner(): Player
+    {
+        val recScores = getFinalScores()
+        var highestScore: Int = 0
+        var highestScoringPlayer: Player = recScores.first().first
+        for(i in 0 until recScores.size)
+        {
+            if(recScores[i].second > highestScore)
+            {
+                highestScoringPlayer = recScores[i].first
+                highestScore = recScores[i].second
+            }
+        }
+
+        return highestScoringPlayer
     }
 
     //A list of all of the un-drawn lines of the game, and their coordinates on the grid
@@ -116,6 +133,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
             if(unDrawnLines.isEmpty())
             {
                 //Fire the game over event
+                isFinished = true
                 fireMyGameOver(getFinalScores())
                 return true
             }

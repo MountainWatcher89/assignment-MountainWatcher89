@@ -49,9 +49,9 @@ class DotsAndBoxesGameView : View
             this.players = recPlayers
         }
 
-
-
     }
+
+    var winningPlayer: Player? = null
 
     //Set the view properties
     private var myBackgroundGridPaint: Paint
@@ -80,7 +80,7 @@ class DotsAndBoxesGameView : View
     {
         override fun onGameOver(game: DotsAndBoxesGame, playerScoreList: List<Pair<Player, Int>>)
         {
-            showGameOverResults()
+            invalidate()
         }
     }
 
@@ -144,7 +144,7 @@ class DotsAndBoxesGameView : View
 
         myTextPaint = Paint().apply {
             textAlign = Paint.Align.CENTER
-            textSize = 50.toFloat()
+            textSize = 25.toFloat()
             typeface = Typeface.SANS_SERIF
             color = Color.BLACK
         }
@@ -272,7 +272,7 @@ class DotsAndBoxesGameView : View
         }
 
         //Draw the game text that displays all player scores
-        var textSpace = 10
+        var textSpace = 30
         var counter = 0
         for(player in players)
         {
@@ -292,6 +292,22 @@ class DotsAndBoxesGameView : View
             textSpace = textSpace + 60
         }
 
+        if(myGameInstance.isFinished)
+        {
+            winningPlayer = myGameInstance.getWinner()
+            if(winningPlayer is StudentDotsBoxGame.namedHumanPlayer)
+            {
+                canvas.drawText(
+                    (winningPlayer as StudentDotsBoxGame.namedHumanPlayer).name + " is the winner!",
+                    (width.toFloat() / 2f), gridHeight.toFloat() - 30, myTextPaint)
+            }
+            else if(myGameInstance.getWinner() is StudentDotsBoxGame.easyAI)
+            {
+                canvas.drawText(
+                    (winningPlayer as StudentDotsBoxGame.easyAI).name + " is the winner!",
+                    (width.toFloat() / 2f), gridHeight.toFloat() - 30, myTextPaint)
+            }
+        }
 
     }
     //End of onDraw function
@@ -365,11 +381,6 @@ class DotsAndBoxesGameView : View
         }
     }
 
-
-    private fun showGameOverResults()
-    {
-
-    }
 
     private val myGestureDetector = GestureDetector(context, myGestureListener())
 
