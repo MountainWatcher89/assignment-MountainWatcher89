@@ -280,13 +280,13 @@ class DotsAndBoxesGameView : View
             {
                 canvas.drawText(
                     player.name + " score: " + myGameInstance.playerScores[counter].toString(),
-                                (viewWidth / 2f), (gridHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
+                                (viewWidth / 2f), (viewHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
             }
             else if(player is StudentDotsBoxGame.easyAI)
             {
                 canvas.drawText(
                     player.name + " score: " + myGameInstance.playerScores[counter].toString(),
-                                (viewWidth / 2f), (gridHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
+                                (viewWidth / 2f), (viewHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
             }
             counter++
             textSpace = textSpace + 60
@@ -299,13 +299,13 @@ class DotsAndBoxesGameView : View
             {
                 canvas.drawText(
                     (winningPlayer as StudentDotsBoxGame.namedHumanPlayer).name + " is the winner!",
-                    (width.toFloat() / 2f), gridHeight.toFloat() - 30, myTextPaint)
+                    (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
             }
             else if(myGameInstance.getWinner() is StudentDotsBoxGame.easyAI)
             {
                 canvas.drawText(
                     (winningPlayer as StudentDotsBoxGame.easyAI).name + " is the winner!",
-                    (width.toFloat() / 2f), gridHeight.toFloat() - 30, myTextPaint)
+                    (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
             }
         }
 
@@ -397,21 +397,28 @@ class DotsAndBoxesGameView : View
 
         override fun onSingleTapUp(ev: MotionEvent): Boolean {
             //Calculate width of a grid element space in pixels
-            val elementWidth = width / maxGridElementDiameter
+            //maxGridElementDiameter
 
             //Calculate the column the user has touched
-            val columnTouch = (ev.x / elementWidth).toInt()
+            val columnTouch = ev.x.toInt() / maxGridElementDiameter.toInt()
 
             //Calculate the row the user has touched
-            val rowTouch = (ev.y / elementWidth).toInt()
+            val rowTouch = ev.y.toInt() / maxGridElementDiameter.toInt()
 
-            //Tell the game logic that the user has chosen a line
-            myGameInstance.playTurnToken(columnTouch, rowTouch)
+            if(ev.x.toInt() < gridWidth * maxGridElementDiameter && ev.y.toInt() < gridHeight * maxGridElementDiameter)
+            {
+                //Tell the game logic that the user has chosen a line
+                myGameInstance.playTurnToken(columnTouch, rowTouch)
 
-            //Get the computer players to make their moves
-            myGameInstance.playComputerTurns()
+                //Get the computer players to make their moves
+                myGameInstance.playComputerTurns()
 
-            return true
+                return true
+            }
+            else
+            {
+                return false
+            }
         }
     }
 
