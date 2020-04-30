@@ -194,7 +194,7 @@ class DotsAndBoxesGameView : View
                 }
                 //If the row number is even, but the column number is odd, then the grid element is a horizontal line
                 //else if((row % 2 == 0) && (column % 2 != 0))
-                else if(myGameInstance.lines[row, column].isHorizontal())
+                else if(myGameInstance.lines[column, row].isHorizontal())
                 {
                     // Calculate the co-ordinates of the horizontal line
                     val leftSideX = (maxGridElementDiameter * column)
@@ -214,7 +214,7 @@ class DotsAndBoxesGameView : View
                     canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
                 //If the row number is odd, but the column number is even, then the grid element is a vertical line
-                else if(myGameInstance.lines[row, column].isVertical())
+                else if(myGameInstance.lines[column, row].isVertical())
                 {
                     // Calculate the co-ordinates of the vertical line
                     val leftSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
