@@ -23,8 +23,8 @@ class DotsAndBoxesGameView : View
     //Default values for grid and player list
     private var gridHeight: Int = 7
     private var gridWidth: Int = 7
-    var players: List<Player> = listOf(StudentDotsBoxGame.namedHumanPlayer("Player 1"),
-                                       StudentDotsBoxGame.easyAI("Computer 1"))
+    var players: List<Player> = listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"),
+                                       StudentDotsBoxGame.EasyAI("Computer 1"))
 
     //Secondary constructor that accepts new grid size and player list parameters
     constructor(context: Context?,
@@ -194,7 +194,7 @@ class DotsAndBoxesGameView : View
                 }
                 //If the row number is even, but the gridX number is odd, then the grid element is a horizontal line
                 //else if((row % 2 == 0) && (gridX % 2 != 0))
-                else if(myGameInstance.lines[gridX, gridY].isHorizontal())
+                else if(myGameInstance.myLines[gridX, gridY].isHorizontal())
                 {
                     // Calculate the co-ordinates of the horizontal line
                     val leftSideX = (maxGridElementDiameter * gridX)
@@ -203,7 +203,7 @@ class DotsAndBoxesGameView : View
                     val bottomY = (maxGridElementDiameter * gridY) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
                     //(maxGridElementDiameter * gridX) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
 
-                    if(myGameInstance.lines[gridX, gridY].isDrawn)
+                    if(myGameInstance.myLines[gridX, gridY].isDrawn)
                     {
                         paint = myLineDrawnByPlayerPaint
                     }
@@ -214,7 +214,7 @@ class DotsAndBoxesGameView : View
                     canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
                 //If the row number is odd, but the gridX number is even, then the grid element is a vertical line
-                else if(myGameInstance.lines[gridX, gridY].isVertical())
+                else if(myGameInstance.myLines[gridX, gridY].isVertical())
                 {
                     // Calculate the co-ordinates of the vertical line
                     val leftSideX = (maxGridElementDiameter * gridX) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
@@ -223,7 +223,7 @@ class DotsAndBoxesGameView : View
                     val bottomY = (maxGridElementDiameter * (gridY + 1))
                     //(maxGridElementDiameter * gridX) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
 
-                    if(myGameInstance.lines[gridX, gridY].isDrawn)
+                    if(myGameInstance.myLines[gridX, gridY].isDrawn)
                     {
                         paint = myLineDrawnByPlayerPaint
                     }
@@ -274,18 +274,19 @@ class DotsAndBoxesGameView : View
         //Draw the game text that displays all player scores
         var textSpace = 30
         var counter = 0
+        val scores = myGameInstance.getScores()
         for(player in players)
         {
-            if(player is StudentDotsBoxGame.namedHumanPlayer)
+            if(player is StudentDotsBoxGame.NamedHumanPlayer)
             {
                 canvas.drawText(
-                    player.name + " score: " + myGameInstance.playerScores[counter].toString(),
+                    player.name + " score: " + scores[counter].toString(),
                                 (viewWidth / 2f), (viewHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
             }
-            else if(player is StudentDotsBoxGame.easyAI)
+            else if(player is StudentDotsBoxGame.EasyAI)
             {
                 canvas.drawText(
-                    player.name + " score: " + myGameInstance.playerScores[counter].toString(),
+                    player.name + " score: " + scores[counter].toString(),
                                 (viewWidth / 2f), (viewHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
             }
             counter++
@@ -295,16 +296,16 @@ class DotsAndBoxesGameView : View
         if(myGameInstance.isFinished)
         {
             winningPlayer = myGameInstance.getWinner()
-            if(winningPlayer is StudentDotsBoxGame.namedHumanPlayer)
+            if(winningPlayer is StudentDotsBoxGame.NamedHumanPlayer)
             {
                 canvas.drawText(
-                    (winningPlayer as StudentDotsBoxGame.namedHumanPlayer).name + " is the winner!",
+                    (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
                     (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
             }
-            else if(myGameInstance.getWinner() is StudentDotsBoxGame.easyAI)
+            else if(myGameInstance.getWinner() is StudentDotsBoxGame.EasyAI)
             {
                 canvas.drawText(
-                    (winningPlayer as StudentDotsBoxGame.easyAI).name + " is the winner!",
+                    (winningPlayer as StudentDotsBoxGame.EasyAI).name + " is the winner!",
                     (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
             }
         }
@@ -408,7 +409,8 @@ class DotsAndBoxesGameView : View
             if(ev.x.toInt() < gridWidth * maxGridElementDiameter && ev.y.toInt() < gridHeight * maxGridElementDiameter)
             {
                 //Tell the game logic that the user has chosen a line
-                myGameInstance.playTurnToken(columnTouch, rowTouch)
+                //Might need to change this to call the drawLine function
+                myGameInstance.tryToDrawLine(columnTouch, rowTouch)
 
                 //Get the computer players to make their moves
 

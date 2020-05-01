@@ -75,6 +75,12 @@ class StudentDotsBoxGame(
         return retVal
     }
 
+    fun printUndrawnLines() {
+        for (element in unDrawnLines) {
+            println(element)
+        }
+    }
+
     //https://www.youtube.com/channel/UCV7dSg_qGYnuwMZ8BNO-FQQ/videos
 
 
@@ -82,33 +88,27 @@ class StudentDotsBoxGame(
         return myBoxes[recColumn, recRow].owningPlayer
     }
 
-    fun playTurnToken(recGridX: Int, recGridY: Int): Boolean {
+    fun playTurnToken(recGridX: Int, recGridY: Int): Boolean
+    {
+        var boxCompleted = false
         val selectedLine = myLines[recGridX, recGridY]
 
         if (currentPlayerIndex < 0) {
             throw IllegalArgumentException("Current player index cannot be less than 0")
         }
-
-        //If the line from the grid of lines selected is not already drawn and is a valid line,
+        //If the line from the grid of lines selected is a valid line,
         // draw the line
         if (!selectedLine.isDrawn && selectedLine.isValid()) {
             //Set the line's state on the logical game grid to drawn
             selectedLine.isDrawn = true
 
-            //Remove the chosen line from the column of un-drawn lines
-            //Need to re-do this
-            printUndrawnLines()
+            //printUndrawnLines()
             println("Coordinates of line selected to be drawn are : <" + recGridX + ", " + recGridY + ">")
 
             unDrawnLines[recGridX].removeAll{ it.first == recGridX && it.second == recGridY}
 
-            //Remove the line column from the list if the column is now empty
-
-            //unDrawnLines.removeAll { it.isEmpty() }
-
             //Check for box completion. If one or both of the boxes adjacent to the drawn line are
             //completed, the current player is granted an additional turn
-            var boxCompleted = false
 
             if (selectedLine.adjacentBoxes.first != null) {
                 if (selectedLine.adjacentBoxes.first!!.checkBoxCompletion()) {
@@ -132,7 +132,6 @@ class StudentDotsBoxGame(
                     isFinished = true
                     fireMyGameOver(getFinalScores())
                     fireGameOver(getFinalScores())
-                    return true
                 }
             }
             else
@@ -147,14 +146,11 @@ class StudentDotsBoxGame(
                     currentPlayerIndex = 0
                 }
 
-                playComputerTurns()
             }
 
-            return true
         }
-        return false
+        return boxCompleted
     }
-
 
 
     // Variable that holds the reference to the 'onGameChange' function in the game view class
@@ -180,18 +176,12 @@ class StudentDotsBoxGame(
     }
 
     override fun playComputerTurns() {
-        var current = currentPlayer
-        while (current is ComputerPlayer && !isFinished) {
-            current.makeMove(this)
-            current = currentPlayer
+        while (currentPlayer is ComputerPlayer && !isFinished) {
+            (currentPlayer as ComputerPlayer).makeMove(this)
         }
     }
 
     init {
-        for (box in boxes) {
-            if (box.isValid()) {
-            }
-        }
 
         //Need to call the method that plays all computer turns, in the event the first player in
         //the player list is a computer player
@@ -203,6 +193,15 @@ class StudentDotsBoxGame(
      * lines and boxes. Alternatively you can have a game property that does the same thing without
      * it being an inner class.
      */
+
+    fun tryToDrawLine(recLineX: Int, recLineY: Int)
+    {
+        if(!myLines[recLineY,  recLineY].isDrawn)
+        {
+            myLines[recLineX, recLineY].drawLine()
+        }
+    }
+
     inner class StudentLine(lineX: Int, lineY: Int) : AbstractLine(lineX, lineY) {
         override var isDrawn: Boolean = false
 
@@ -250,8 +249,7 @@ class StudentDotsBoxGame(
                         //Get the boxes to the left and right of the line
                         field = Pair(
                             myBoxes[this.lineX - 1, this.lineY],
-                            myBoxes[this.lineX + 1, this.lineY]
-                                    )
+                            myBoxes[this.lineX + 1, this.lineY])
                     }
                 }
 
@@ -278,7 +276,16 @@ class StudentDotsBoxGame(
             {
                 throw IllegalStateException("Line already drawn")
             }
-            playTurnToken(lineX, lineY)
+
+            val boxWasCompleted = playTurnToken(lineX, lineY)
+
+            //If a human player draws a line but it does not complete a box, the next player, a
+            //computer player, gets their turn.
+            if(!boxWasCompleted && (currentPlayer is ComputerPlayer) || (currentPlayer is EasyAI))
+            {
+                playComputerTurns()
+            }
+
             //fireMyGameChange()
             //playComputerTurns()
             // NOTE read the documentation in the interface, you must also update the current player.
@@ -327,7 +334,7 @@ class StudentDotsBoxGame(
         }
     }
 
-    class easyAI(val recName: String) : ComputerPlayer() {
+    class EasyAI(val recName: String) : ComputerPlayer() {
         public var name: String = ""
             get() {
                 return field
@@ -354,13 +361,7 @@ class StudentDotsBoxGame(
         }
     }
 
-    fun printUndrawnLines() {
-        for (element in unDrawnLines) {
-            println(element)
-        }
-    }
-
-    class namedHumanPlayer(recName: String) : HumanPlayer() {
+    class NamedHumanPlayer(recName: String) : HumanPlayer() {
         public var name: String = ""
             get() {
                 return field
