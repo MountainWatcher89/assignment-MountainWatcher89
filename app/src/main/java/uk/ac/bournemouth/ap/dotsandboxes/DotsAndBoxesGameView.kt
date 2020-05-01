@@ -178,32 +178,32 @@ class DotsAndBoxesGameView : View
 
         val gridElementRadius = maxGridElementDiameter / 2
 
-        //Draw gid elements on the game board
-        for(row in 0 until gridWidth)
+        //Draw grid elements on the game board
+        for(gridX in 0 until gridHeight)
         {
-            for(column in 0 until gridHeight)
+            for(gridY in 0 until gridWidth)
             {
 
-                //If both the row and column are even, the grid element is a dot
-                if((row % 2 == 0) && (column % 2 == 0))
+                //If both the row and gridX are even, the grid element is a dot
+                if((gridY % 2 == 0) && (gridX % 2 == 0))
                 {
                     // Calculate the co-ordinates of the circle
-                    val cx = maxGridElementDiameter * column + gridElementRadius
-                    val cy = maxGridElementDiameter * row + gridElementRadius
+                    val cx = maxGridElementDiameter * gridX + gridElementRadius
+                    val cy = maxGridElementDiameter * gridY + gridElementRadius
                     canvas.drawCircle(cx, cy, gridElementRadius / 2, myDotPaint)
                 }
-                //If the row number is even, but the column number is odd, then the grid element is a horizontal line
-                //else if((row % 2 == 0) && (column % 2 != 0))
-                else if(myGameInstance.lines[column, row].isHorizontal())
+                //If the row number is even, but the gridX number is odd, then the grid element is a horizontal line
+                //else if((row % 2 == 0) && (gridX % 2 != 0))
+                else if(myGameInstance.lines[gridX, gridY].isHorizontal())
                 {
                     // Calculate the co-ordinates of the horizontal line
-                    val leftSideX = (maxGridElementDiameter * column)
-                    val topY = (maxGridElementDiameter * row) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
-                    val rightSideX = (maxGridElementDiameter * (column + 1))
-                    val bottomY = (maxGridElementDiameter * row) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
-                    //(maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
+                    val leftSideX = (maxGridElementDiameter * gridX)
+                    val topY = (maxGridElementDiameter * gridY) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
+                    val rightSideX = (maxGridElementDiameter * (gridX + 1))
+                    val bottomY = (maxGridElementDiameter * gridY) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
+                    //(maxGridElementDiameter * gridX) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
 
-                    if(myGameInstance.lines[row, column].isDrawn)
+                    if(myGameInstance.lines[gridX, gridY].isDrawn)
                     {
                         paint = myLineDrawnByPlayerPaint
                     }
@@ -213,17 +213,17 @@ class DotsAndBoxesGameView : View
                     }
                     canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
-                //If the row number is odd, but the column number is even, then the grid element is a vertical line
-                else if(myGameInstance.lines[column, row].isVertical())
+                //If the row number is odd, but the gridX number is even, then the grid element is a vertical line
+                else if(myGameInstance.lines[gridX, gridY].isVertical())
                 {
                     // Calculate the co-ordinates of the vertical line
-                    val leftSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
-                    val topY = (maxGridElementDiameter * row)
-                    val rightSideX = (maxGridElementDiameter * column) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
-                    val bottomY = (maxGridElementDiameter * (row + 1))
-                    //(maxGridElementDiameter * column) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
+                    val leftSideX = (maxGridElementDiameter * gridX) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
+                    val topY = (maxGridElementDiameter * gridY)
+                    val rightSideX = (maxGridElementDiameter * gridX) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
+                    val bottomY = (maxGridElementDiameter * (gridY + 1))
+                    //(maxGridElementDiameter * gridX) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
 
-                    if(myGameInstance.lines[row, column].isDrawn)
+                    if(myGameInstance.lines[gridX, gridY].isDrawn)
                     {
                         paint = myLineDrawnByPlayerPaint
                     }
@@ -233,17 +233,17 @@ class DotsAndBoxesGameView : View
                     }
                     canvas.drawRect(leftSideX, topY, rightSideX, bottomY, paint)
                 }
-                //If both the row number and column number are odd, then the grid element is a box
+                //If both the row number and gridX number are odd, then the grid element is a box
                 else
                 {
                     // Calculate the co-ordinates of the box
-                    val leftSideX = (maxGridElementDiameter * column)
-                    val topY = (maxGridElementDiameter * row)
-                    val rightSideX = (maxGridElementDiameter * (column + 1))
-                    val bottomY = (maxGridElementDiameter * (row + 1))
+                    val leftSideX = (maxGridElementDiameter * gridX)
+                    val topY = (maxGridElementDiameter * gridY)
+                    val rightSideX = (maxGridElementDiameter * (gridX + 1))
+                    val bottomY = (maxGridElementDiameter * (gridY + 1))
 
                     //Player index from the player list is retrieved
-                    paintValue = calculateBoxPaint(row, column)
+                    paintValue = calculateBoxPaint(gridX, gridY)
 
                     //Paint is set based on player index in the players list
                     if(paintValue == 0)
@@ -400,10 +400,10 @@ class DotsAndBoxesGameView : View
             //maxGridElementDiameter
 
             //Calculate the column the user has touched
-            val columnTouch = ev.x.toInt() / maxGridElementDiameter.toInt()
+            val columnTouch = (ev.x / maxGridElementDiameter).toInt()
 
             //Calculate the row the user has touched
-            val rowTouch = ev.y.toInt() / maxGridElementDiameter.toInt()
+            val rowTouch = (ev.y / maxGridElementDiameter).toInt()
 
             if(ev.x.toInt() < gridWidth * maxGridElementDiameter && ev.y.toInt() < gridHeight * maxGridElementDiameter)
             {
@@ -411,7 +411,6 @@ class DotsAndBoxesGameView : View
                 myGameInstance.playTurnToken(columnTouch, rowTouch)
 
                 //Get the computer players to make their moves
-                myGameInstance.playComputerTurns()
 
                 return true
             }

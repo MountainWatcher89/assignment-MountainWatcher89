@@ -3,55 +3,50 @@ package org.example.student.dotsboxgame
 import uk.ac.bournemouth.ap.dotsandboxeslib.*
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.Matrix
 import uk.ac.bournemouth.ap.dotsandboxeslib.matrix.MutableMatrix
+import java.lang.IllegalStateException
+import kotlin.Pair
 
-class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receivedPlayerList: List<Player>) : AbstractDotsAndBoxesGame() {
+class StudentDotsBoxGame(
+    receivedGridWidth: Int,
+    receivedGridHeight: Int,
+    receivedPlayerList: List<Player>
+                        ) : AbstractDotsAndBoxesGame() {
 
     //The width and height values include spaces for lines between the boxes
 
-    private val gridWidth: Int = receivedGridWidth
-    private val gridHeight: Int = receivedGridHeight
-    override val players: List<Player> = receivedPlayerList
+    private val gridWidth: Int = receivedGridWidth * 2 + 1
+    private val gridHeight: Int = receivedGridHeight * 2 + 1
+    override val players: List<Player> = receivedPlayerList.toList()
     override var isFinished: Boolean = false
 
     private var currentPlayerIndex: Int = 0
-    override var currentPlayer: Player = players[currentPlayerIndex]
-    var playerScores = setPlayerScores()
+    override val currentPlayer: Player get() = players[currentPlayerIndex]
+
     // NOTE: you may want to me more specific in the box type if you use that type in your class
 
-    override val boxes: Matrix<StudentBox> = MutableMatrix<StudentBox>(gridWidth, gridHeight, ::StudentBox)
+    override val boxes: List<StudentBox> get() = myBoxes.filter { it.isValid() }
 
-    override val lines: Matrix<StudentLine> = MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
+    val myBoxes: Matrix<StudentBox> =
+        MutableMatrix<StudentBox>(gridWidth, gridHeight, ::StudentBox)
 
+    override val lines: List<StudentLine> get() = myLines.filter { it.isValid() } //MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
 
-    private fun setPlayerScores(): MutableList<Int>
-    {
-        val retVal = mutableListOf<Int>()
-        for (i in 0..players.size)
-        {
-            retVal.add(0)
+    val myLines: Matrix<StudentLine> =
+        MutableMatrix<StudentLine>(gridWidth, gridHeight, ::StudentLine)
+
+    private fun getFinalScores(): List<Pair<Player, Int>> {
+        return  players.map{ player ->
+            val score = boxes.count(){ it.owningPlayer == player}
+            player to score
         }
-        return retVal
     }
 
-    private fun getFinalScores(): List<Pair<Player, Int>>
-    {
-        val retVal = mutableListOf<Pair<Player, Int>>()
-        for (i in 0..players.size)
-        {
-            retVal[i] = Pair(players[i], playerScores[i])
-        }
-        return retVal
-    }
-
-    fun getWinner(): Player
-    {
+    fun getWinner(): Player {
         val recScores = getFinalScores()
         var highestScore: Int = 0
         var highestScoringPlayer: Player = recScores.first().first
-        for(i in 0 until recScores.size)
-        {
-            if(recScores[i].second > highestScore)
-            {
+        for (i in 0 until recScores.size) {
+            if (recScores[i].second > highestScore) {
                 highestScoringPlayer = recScores[i].first
                 highestScore = recScores[i].second
             }
@@ -63,18 +58,14 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
     //A list of all of the un-drawn lines of the game, and their coordinates on the grid
     var unDrawnLines = createDrawnLines()
 
-    fun createDrawnLines(): MutableList<MutableList<Pair<Int, Int>>>
-    {
+    fun createDrawnLines(): MutableList<MutableList<Pair<Int, Int>>> {
         val retVal = mutableListOf<MutableList<Pair<Int, Int>>>()
         //The 2D array is filled with zeroes, indicating that none of the lines have been drawn yet
-        for(gridX in 0 until gridWidth)
-        {
+        for (gridX in 0 until gridWidth) {
             val individualColumn = mutableListOf<Pair<Int, Int>>()
-            for (gridY in 0 until gridHeight)
-            {
+            for (gridY in 0 until gridHeight) {
                 //Line will only be added if it has valid coordinates
-                if(lines[gridX, gridY].isValid())
-                {
+                if (myLines[gridX, gridY].isValid()) {
                     individualColumn.add(Pair(gridX, gridY))
                 }
             }
@@ -87,128 +78,118 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
     //https://www.youtube.com/channel/UCV7dSg_qGYnuwMZ8BNO-FQQ/videos
 
 
-    fun getTurnToken(recColumn: Int, recRow: Int): Player?
-    {
-        return boxes[recColumn, recRow].owningPlayer
+    fun getTurnToken(recColumn: Int, recRow: Int): Player? {
+        return myBoxes[recColumn, recRow].owningPlayer
     }
 
-    fun playTurnToken(recColumn: Int, recRow: Int): Boolean
-    {
-        if(currentPlayerIndex < 0)
-        {
+    fun playTurnToken(recGridX: Int, recGridY: Int): Boolean {
+        val selectedLine = myLines[recGridX, recGridY]
+
+        if (currentPlayerIndex < 0) {
             throw IllegalArgumentException("Current player index cannot be less than 0")
         }
 
         //If the line from the grid of lines selected is not already drawn and is a valid line,
         // draw the line
-        if(!lines[recColumn, recRow].isDrawn && lines[recColumn, recRow].isValid())
-        {
-            lines[recColumn, recRow].drawLine()
+        if (!selectedLine.isDrawn && selectedLine.isValid()) {
+            //Set the line's state on the logical game grid to drawn
+            selectedLine.isDrawn = true
+
+            //Remove the chosen line from the column of un-drawn lines
+            //Need to re-do this
+            printUndrawnLines()
+            println("Coordinates of line selected to be drawn are : <" + recGridX + ", " + recGridY + ">")
+
+            unDrawnLines[recGridX].removeAll{ it.first == recGridX && it.second == recGridY}
+
+            //Remove the line column from the list if the column is now empty
+
+            //unDrawnLines.removeAll { it.isEmpty() }
 
             //Check for box completion. If one or both of the boxes adjacent to the drawn line are
             //completed, the current player is granted an additional turn
-            if(lines[recColumn, recRow].adjacentBoxes.first != null)
-            {
-                if(lines[recColumn, recRow].adjacentBoxes.first!!.checkBoxCompletion())
-                {
-                    playerCompletedABox()
-                    return true
+            var boxCompleted = false
+
+            if (selectedLine.adjacentBoxes.first != null) {
+                if (selectedLine.adjacentBoxes.first!!.checkBoxCompletion()) {
+                    boxCompleted = true
                 }
             }
-            else if(lines[recColumn, recRow].adjacentBoxes.second != null)
+            if (selectedLine.adjacentBoxes.second != null) {
+                if (selectedLine.adjacentBoxes.second!!.checkBoxCompletion()) {
+                    boxCompleted = true
+                }
+            }
+
+            fireMyGameChange()
+            fireGameChange()
+
+            if (boxCompleted)
             {
-                if(lines[recColumn, recRow].adjacentBoxes.second!!.checkBoxCompletion())
-                {
-                    playerCompletedABox()
+                //Check if all lines have been drawn
+                if (myLines.all{ !it.isValid() || it.isDrawn}) {
+                    //Fire the game over event
+                    isFinished = true
+                    fireMyGameOver(getFinalScores())
+                    fireGameOver(getFinalScores())
                     return true
                 }
             }
             else
             {
-                //Somehow, both adjacent boxes are null
-                return false
-            }
+                //In the event of a player not completing a box on their turn, Increment the current
+                //player variable, so that the next player will get their turn
+                if (currentPlayerIndex < (players.size - 1)) {
+                    //Increment current player by one
+                    currentPlayerIndex += 1
+                } else {
+                    //Loop back around to the first player in the player list
+                    currentPlayerIndex = 0
+                }
 
-            //Check if all lines have been drawn
-            if(unDrawnLines.isEmpty())
-            {
-                //Fire the game over event
-                isFinished = true
-                fireMyGameOver(getFinalScores())
-                return true
+                playComputerTurns()
             }
-
-            //In the event of a player not completing a box on their turn, Increment the current
-            //player variable, so that the next player will get their turn
-            if(currentPlayerIndex < (players.size - 1))
-            {
-                //Increment current player by one
-                currentPlayerIndex += 1
-            }
-            else
-            {
-                //Loop back around to the first player in the player list
-                currentPlayerIndex = 0
-            }
-            //Update the current player
-            currentPlayer = players[currentPlayerIndex]
-
 
             return true
-
         }
         return false
     }
 
-    fun playerCompletedABox()
-    {
-        //Update the player score
-        playerScores[currentPlayerIndex] ++
 
-        //Current player is not changed, because they just completed a box
-    }
 
     // Variable that holds the reference to the 'onGameChange' function in the game view class
     var onGameChangeListener: DotsAndBoxesGame.GameChangeListener? = null
 
-    fun setGameChangeListener(myGameChangeListenerImp: DotsAndBoxesGame.GameChangeListener)
-    {
+    fun setGameChangeListener(myGameChangeListenerImp: DotsAndBoxesGame.GameChangeListener) {
         onGameChangeListener = myGameChangeListenerImp
     }
 
-    fun fireMyGameChange()
-    {
+    fun fireMyGameChange() {
         onGameChangeListener?.onGameChange(this)
     }
 
     //Variable that holds the refernce to the 'onGameOver' function in the game view class
     var onGameOverListener: DotsAndBoxesGame.GameOverListener? = null
 
-    fun setGameOverListener(myGameOverListenerImp: DotsAndBoxesGame.GameOverListener)
-    {
+    fun setGameOverListener(myGameOverListenerImp: DotsAndBoxesGame.GameOverListener) {
         onGameOverListener = myGameOverListenerImp
     }
 
-    fun fireMyGameOver(playerScores: List<Pair<Player, Int>>)
-    {
+    fun fireMyGameOver(playerScores: List<Pair<Player, Int>>) {
         onGameOverListener?.onGameOver(this, playerScores)
     }
 
     override fun playComputerTurns() {
         var current = currentPlayer
-        while (current is ComputerPlayer && ! isFinished) {
+        while (current is ComputerPlayer && !isFinished) {
             current.makeMove(this)
             current = currentPlayer
         }
     }
 
-    init
-    {
-        for(box in boxes)
-        {
-            if(box.isValid())
-            {
-                box.setBoundingLines()
+    init {
+        for (box in boxes) {
+            if (box.isValid()) {
             }
         }
 
@@ -228,8 +209,7 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
         fun isValid(): Boolean {
             var result = false
             //The line is only valid if its X or Y coordinates are greater than 0, and less than
-            if((this.lineX >= 0 && this.lineX < gridWidth) && (this.lineY >= 0 && this.lineY < gridHeight))
-            {
+            if ((this.lineX >= 0 && this.lineX < gridWidth) && (this.lineY >= 0 && this.lineY < gridHeight)) {
                 //Line is horizontal
                 if (isHorizontal())
                     result = true
@@ -244,66 +224,63 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
         //Need to add checks so that a line on the edge of the grid only has one adjacent box
         override var adjacentBoxes: Pair<StudentBox?, StudentBox?> = Pair(null, null)
             get() {
-                if (this.isValid())
-                {
+                if (this.isValid()) {
                     //Line is horizontal
-                    if (isHorizontal() && (this.lineY == 0))
-                    {
+                    if (isHorizontal() && (this.lineY == 0)) {
                         //Get the box below the line
-                        field = Pair(null, boxes[this.lineX, this.lineY + 1])
-                    }
-                    else if(isHorizontal() && (this.lineY == (gridHeight - 1)))
-                    {
+                        field = Pair(null, myBoxes[this.lineX, this.lineY + 1])
+                    } else if (isHorizontal() && (this.lineY == (gridHeight - 1))) {
                         //Get the box above the line
-                        field = Pair(boxes[this.lineX, this.lineY - 1], null)
-                    }
-                    else if(isHorizontal())
-                    {
+                        field = Pair(myBoxes[this.lineX, this.lineY - 1], null)
+                    } else if (isHorizontal()) {
                         //Get the boxes below and above the line
-                        field = Pair(boxes[this.lineX, this.lineY - 1], boxes[this.lineX, this.lineY + 1])
+                        field = Pair(
+                            myBoxes[this.lineX, this.lineY - 1],
+                            myBoxes[this.lineX, this.lineY + 1]
+                                    )
                     }
                     //Line is horizontal
-                    else if (isVertical() && (this.lineX == 0))
-                    {
+                    else if (isVertical() && (this.lineX == 0)) {
                         //Get the box to the right of the line
-                        field = Pair(null, boxes[this.lineX + 1, this.lineY])
-                    }
-                    else if(isVertical() && (this.lineX == (gridWidth - 1)))
-                    {
+                        field = Pair(null, myBoxes[this.lineX + 1, this.lineY])
+                    } else if (isVertical() && (this.lineX == (gridWidth - 1))) {
                         //Get the box to the left of the line
-                        field = Pair(boxes[this.lineX - 1, this.lineY], null)
-                    }
-                    else if(isVertical())
-                    {
+                        field = Pair(myBoxes[this.lineX - 1, this.lineY], null)
+                    } else if (isVertical()) {
                         //Get the boxes to the left and right of the line
-                        field = Pair(boxes[this.lineX - 1, this.lineY], boxes[this.lineX + 1, this.lineY])
+                        field = Pair(
+                            myBoxes[this.lineX - 1, this.lineY],
+                            myBoxes[this.lineX + 1, this.lineY]
+                                    )
                     }
                 }
 
                 return field
             }
 
-        fun isHorizontal(): Boolean
-        {
-            if((this.lineX % 2 != 0) && (this.lineY % 2 == 0))
+        fun isHorizontal(): Boolean {
+            if ((this.lineX % 2 != 0) && (this.lineY % 2 == 0))
                 return true
             else
                 return false
         }
 
-        fun isVertical(): Boolean
-        {
-            if((this.lineX % 2 == 0) && (this.lineY % 2 != 0))
+        fun isVertical(): Boolean {
+            if ((this.lineX % 2 == 0) && (this.lineY % 2 != 0))
                 return true
             else
                 return false
         }
 
-        override fun drawLine()
-        {
-            isDrawn = true
-
-            fireMyGameChange()
+        override fun drawLine() {
+            //isDrawn = true
+            if(isDrawn)
+            {
+                throw IllegalStateException("Line already drawn")
+            }
+            playTurnToken(lineX, lineY)
+            //fireMyGameChange()
+            //playComputerTurns()
             // NOTE read the documentation in the interface, you must also update the current player.
         }
     }
@@ -311,12 +288,10 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
     inner class StudentBox(boxX: Int, boxY: Int) : AbstractBox(boxX, boxY) {
 
         override var owningPlayer: Player? = null
-            get()
-            {
+            get() {
                 return field
             }
-            set(value)
-            {
+            set(value) {
                 field = value
             }
 
@@ -324,35 +299,22 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
          * This must be lazy or a getter, otherwise there is a chicken/egg problem with the boxes
          */
         //Look up the correct lines from the game outer class
-        override val boundingLines: MutableList<StudentLine> = mutableListOf()
+        override val boundingLines: List<StudentLine>
+            get() = listOf(
+                (myLines[boxX, boxY - 1]),
+                (myLines[boxX, boxY + 1]),
+                (myLines[boxX - 1, boxY]),
+                (myLines[boxX + 1, boxY])
+                          )
 
-        fun setBoundingLines()
-        {
-            //Get the line above the box
-            boundingLines.add(lines[this.boxX, this.boxY - 1])
-
-            //Get the line below the box
-            boundingLines.add(lines[this.boxX, this.boxY + 1])
-
-            //Get the line to the left of the box
-            boundingLines.add(lines[this.boxX - 1, this.boxY])
-
-            //Get the line to the right of the box
-            boundingLines.add(lines[this.boxX + 1, this.boxY])
-        }
-
-        fun checkBoxCompletion(): Boolean
-        {
+        fun checkBoxCompletion(): Boolean {
             //If all surrounding lines of the box has been drawn, the box now belongs to the player
             //that drew the current line
-            if(boundingLines[0].isDrawn && boundingLines[1].isDrawn &&
-                boundingLines[2].isDrawn && boundingLines[3].isDrawn)
-            {
-                this.owningPlayer = currentPlayer
+            if (boundingLines.all{ it.isDrawn }) {
+                this.owningPlayer = currentPlayer;
                 return true
             }
-            else
-            {
+            else {
                 return false
             }
         }
@@ -365,27 +327,21 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
         }
     }
 
-    class easyAI(val recName: String): ComputerPlayer()
-    {
+    class easyAI(val recName: String) : ComputerPlayer() {
         public var name: String = ""
-            get()
-        {
-           return field
-        }
-        set(value)
-        {
-            field = value
-        }
+            get() {
+                return field
+            }
+            set(value) {
+                field = value
+            }
 
-        init
-        {
+        init {
             this.name = recName
         }
 
-        override fun makeMove(gameRef: DotsAndBoxesGame)
-        {
-            if(gameRef is StudentDotsBoxGame)
-            {
+        override fun makeMove(gameRef: DotsAndBoxesGame) {
+            if (gameRef is StudentDotsBoxGame) {
                 //Select a random column of the grid
                 val chosenColumn = gameRef.unDrawnLines.random()
 
@@ -394,33 +350,26 @@ class StudentDotsBoxGame(receivedGridWidth: Int, receivedGridHeight: Int, receiv
 
                 //Invoke the playTurnToken method using the selected line
                 gameRef.playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
-
-                //Remove the chosen line from the column of un-drawn lines
-                gameRef.unDrawnLines[gameRef.unDrawnLines.indexOf(chosenColumn)].removeAt(chosenColumn.indexOf(chosenColumnLine))
-
-                //Remove the line column from the list if the column is now empty
-                if(chosenColumn.isEmpty())
-                {
-                    gameRef.unDrawnLines.removeAt(gameRef.unDrawnLines.indexOf(chosenColumn))
-                }
             }
         }
     }
 
-    class namedHumanPlayer(recName: String) : HumanPlayer()
-    {
+    fun printUndrawnLines() {
+        for (element in unDrawnLines) {
+            println(element)
+        }
+    }
+
+    class namedHumanPlayer(recName: String) : HumanPlayer() {
         public var name: String = ""
-            get()
-            {
+            get() {
                 return field
             }
-            set(value)
-            {
+            set(value) {
                 field = value
             }
 
-        init
-        {
+        init {
             this.name = recName
         }
     }
