@@ -21,35 +21,11 @@ class DotsAndBoxesGameView : View
             super(context, attrs, defStyleAttr)
 
     //Default values for grid and player list
-    private var gridHeight: Int = 7
-    private var gridWidth: Int = 7
-    var players: List<Player> = listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"),
-                                       StudentDotsBoxGame.EasyAI("Computer 1"))
+    private val gridHeight: Int get() = myGameInstance.myBoxes.height
+    private val gridWidth: Int get() = myGameInstance.myBoxes.width
+    val players: List<Player> get() = myGameInstance.players
 
-    //Secondary constructor that accepts new grid size and player list parameters
-    constructor(context: Context?,
-                recColumnCount: Int, recRowCount: Int, recPlayers: List<Player>) : super(context) {
 
-        //If the game detects a grid height less than 3 or greater than 9, it will set the grid height to 7
-        if(this.gridHeight >= 3 && this.gridHeight <= 9)
-        {
-            this.gridHeight = recColumnCount
-        }
-
-        //If the game detects a grid width less than 3 or greater than 9, it will set the grid width to 7
-        if(this.gridWidth >= 3 && this.gridWidth <= 9)
-        {
-            this.gridWidth = recRowCount
-        }
-
-        //If the game detects a list of players that is too small or too large, it will start the
-        //game with its default player list
-        if (myGameInstance.players.size >= 2 && myGameInstance.players.size <= 4)
-        {
-            this.players = recPlayers
-        }
-
-    }
 
     var winningPlayer: Player? = null
 
@@ -68,7 +44,7 @@ class DotsAndBoxesGameView : View
 
     var maxGridElementDiameter: Float = 0f
     //
-    var myGameChangeListenerImp = object: DotsAndBoxesGame.GameChangeListener
+    val myGameChangeListenerImp = object: DotsAndBoxesGame.GameChangeListener
     {
         override fun onGameChange(game: DotsAndBoxesGame) {
             invalidate()
@@ -76,7 +52,7 @@ class DotsAndBoxesGameView : View
     }
 
     //Need to fix this
-    var myGameOverListenerImp = object: DotsAndBoxesGame.GameOverListener
+    val myGameOverListenerImp = object: DotsAndBoxesGame.GameOverListener
     {
         override fun onGameOver(game: DotsAndBoxesGame, playerScoreList: List<Pair<Player, Int>>)
         {
@@ -85,8 +61,19 @@ class DotsAndBoxesGameView : View
     }
 
     //Instantiate the StudentDotsBoxGame class
-    val myGameInstance: StudentDotsBoxGame =
-        StudentDotsBoxGame(gridWidth,gridHeight, players)
+    var myGameInstance: StudentDotsBoxGame =
+        StudentDotsBoxGame(3, 3,
+                           listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
+    set(value) {
+        field.removeOnGameChangeListener(myGameChangeListenerImp)
+        field.removeOnGameOverListener(myGameOverListenerImp)
+        field = value
+        field.addOnGameChangeListener(myGameChangeListenerImp)
+        field.addOnGameOverListener(myGameOverListenerImp)
+    }
+
+
+
 
     init
     {

@@ -6,14 +6,14 @@ import org.example.student.dotsboxgame.StudentDotsBoxGame
 
 class MainActivity : AppCompatActivity() {
 
-    private var myGameView: DotsAndBoxesGameView? = null
+    private lateinit var myGameView: DotsAndBoxesGameView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        myGameView = DotsAndBoxesGameView(
-            this, 7, 7,
-            listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
+        myGameView = DotsAndBoxesGameView(this)
+        myGameView.myGameInstance = StudentDotsBoxGame(2,2,
+                                                       listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
         setContentView(myGameView)
     }
 }

@@ -290,6 +290,12 @@ class StudentDotsBoxGame(
             //playComputerTurns()
             // NOTE read the documentation in the interface, you must also update the current player.
         }
+
+        override fun toString(): String {
+            return "StudentLine($lineX, $lineY, isDrawn=$isDrawn)"
+        }
+
+
     }
 
     inner class StudentBox(boxX: Int, boxY: Int) : AbstractBox(boxX, boxY) {
@@ -336,28 +342,27 @@ class StudentDotsBoxGame(
 
     class EasyAI(val recName: String) : ComputerPlayer() {
         public var name: String = ""
-            get() {
-                return field
-            }
-            set(value) {
-                field = value
-            }
 
         init {
             this.name = recName
         }
 
         override fun makeMove(gameRef: DotsAndBoxesGame) {
-            if (gameRef is StudentDotsBoxGame) {
+
+            val line = gameRef.lines.filter { !it.isDrawn }.random()
+            line.drawLine()
+
+            /*
+               if (gameRef is StudentDotsBoxGame) {
                 //Select a random column of the grid
-                val chosenColumn = gameRef.unDrawnLines.random()
+                val chosenColumn: MutableList<Pair<Int, Int>> = gameRef.unDrawnLines.random()
 
                 //Select a random line from the column
                 val chosenColumnLine = chosenColumn.random()
 
                 //Invoke the playTurnToken method using the selected line
                 gameRef.playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
-            }
+            }*/
         }
     }
 
