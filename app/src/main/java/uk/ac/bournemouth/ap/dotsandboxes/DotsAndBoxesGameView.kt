@@ -9,6 +9,7 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import org.example.student.dotsboxgame.StudentDotsBoxGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
@@ -380,7 +381,7 @@ class DotsAndBoxesGameView : View
     inner class myGestureListener: GestureDetector.SimpleOnGestureListener()
     {
         override fun onDown(ev: MotionEvent): Boolean {
-            return true
+            return !myGameInstance.isFinished
         }
 
         override fun onSingleTapUp(ev: MotionEvent): Boolean {
