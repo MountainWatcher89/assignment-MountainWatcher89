@@ -21,11 +21,10 @@ class GameSettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListene
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        myGameView = DotsAndBoxesGameView(this)
-
         setContentView(R.layout.activity_game_settings)
+
         seekBarWidth.setOnSeekBarChangeListener(this)
+        seekBarHeight.setOnSeekBarChangeListener(this)
 
         bar_width = findViewById(R.id.seekBarWidth)
         bar_height = findViewById(R.id.seekBarHeight)
@@ -35,10 +34,8 @@ class GameSettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListene
 
         btn_start_game.setOnClickListener()
         {
-            val intent = Intent(this, DotsAndBoxesGameView::class.java)
-
-            myGameView.myGameInstance = StudentDotsBoxGame(bar_width.progress + 2, bar_height.progress + 2,
-                                                           listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("ID_EXTRA", intArrayOf(bar_width.progress + 2, bar_height.progress + 2))
 
             startActivity(intent)
         }

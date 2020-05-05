@@ -55,6 +55,28 @@ class StudentDotsBoxGame(
         return highestScoringPlayer
     }
 
+
+    fun checkForDraw(): Boolean
+    {
+        var retVal = false
+        val recScores = getFinalScores()
+        var highestScore: Int = 0
+        for (i in 0 until recScores.size) {
+            if (recScores[i].second > highestScore) {
+                highestScore = recScores[i].second
+                //Another player has a higher score, there is no score draw currently.
+                retVal = false
+            }
+            else if(recScores[i].second == highestScore)
+            {
+                //Another player has the same score, so there is a draw between them and the highest
+                // scoring player.
+                retVal = true
+            }
+        }
+        return retVal
+    }
+
     //A list of all of the un-drawn lines of the game, and their coordinates on the grid
     var unDrawnLines = createDrawnLines()
 

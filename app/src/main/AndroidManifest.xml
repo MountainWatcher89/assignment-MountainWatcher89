@@ -11,10 +11,11 @@
             android:theme="@style/AppTheme">
         <activity android:name=".GameSettingsActivity">
             <intent-filter>
-                <action android:name=".dotsandboxes" />
+                <action android:name=".GameSettingsActivity" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+        <activity android:name=".DotsAndBoxesGameView"></activity>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

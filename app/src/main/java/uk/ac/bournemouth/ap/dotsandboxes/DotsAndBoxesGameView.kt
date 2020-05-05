@@ -61,7 +61,7 @@ class DotsAndBoxesGameView : View
         }
     }
 
-    //Instantiate the StudentDotsBoxGame class
+    //Instantiate the StudentDotsBoxGame class. The height and width values can be overridden
     var myGameInstance: StudentDotsBoxGame =
         StudentDotsBoxGame(3, 3,
                            listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
@@ -286,15 +286,32 @@ class DotsAndBoxesGameView : View
             winningPlayer = myGameInstance.getWinner()
             if(winningPlayer is StudentDotsBoxGame.NamedHumanPlayer)
             {
-                canvas.drawText(
-                    (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
-                    (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                if(!myGameInstance.checkForDraw())
+                {
+                    canvas.drawText(
+                        (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
+                        (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                }
+                else
+                {
+                    canvas.drawText("It's a draw!",
+                        (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                }
+
             }
             else if(myGameInstance.getWinner() is StudentDotsBoxGame.EasyAI)
             {
-                canvas.drawText(
-                    (winningPlayer as StudentDotsBoxGame.EasyAI).name + " is the winner!",
-                    (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                if(!myGameInstance.checkForDraw())
+                {
+                    canvas.drawText(
+                        (winningPlayer as StudentDotsBoxGame.EasyAI).name + " is the winner!",
+                        (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                }
+                else
+                {
+                    canvas.drawText("It's a draw!",
+                                    (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                }
             }
         }
 
