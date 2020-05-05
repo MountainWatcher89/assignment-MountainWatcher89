@@ -9,7 +9,6 @@ import android.util.AttributeSet
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import androidx.appcompat.app.AppCompatActivity
 import org.example.student.dotsboxgame.StudentDotsBoxGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.DotsAndBoxesGame
 import uk.ac.bournemouth.ap.dotsandboxeslib.Player
@@ -28,7 +27,7 @@ class DotsAndBoxesGameView : View
 
 
 
-    var winningPlayer: Player? = null
+    private var winningPlayer: Player? = null
 
     //Set the view properties
     private var myBackgroundGridPaint: Paint
@@ -45,7 +44,7 @@ class DotsAndBoxesGameView : View
 
     var maxGridElementDiameter: Float = 0f
     //
-    val myGameChangeListenerImp = object: DotsAndBoxesGame.GameChangeListener
+    private val myGameChangeListenerImp = object: DotsAndBoxesGame.GameChangeListener
     {
         override fun onGameChange(game: DotsAndBoxesGame) {
             invalidate()
@@ -53,7 +52,7 @@ class DotsAndBoxesGameView : View
     }
 
     //Need to fix this
-    val myGameOverListenerImp = object: DotsAndBoxesGame.GameOverListener
+    private val myGameOverListenerImp = object: DotsAndBoxesGame.GameOverListener
     {
         override fun onGameOver(game: DotsAndBoxesGame, playerScoreList: List<Pair<Player, Int>>)
         {
@@ -65,16 +64,13 @@ class DotsAndBoxesGameView : View
     var myGameInstance: StudentDotsBoxGame =
         StudentDotsBoxGame(3, 3,
                            listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
-    set(value) {
+        set(value) {
         field.removeOnGameChangeListener(myGameChangeListenerImp)
         field.removeOnGameOverListener(myGameOverListenerImp)
         field = value
         field.addOnGameChangeListener(myGameChangeListenerImp)
         field.addOnGameOverListener(myGameOverListenerImp)
     }
-
-
-
 
     init
     {
@@ -146,7 +142,7 @@ class DotsAndBoxesGameView : View
         super.onDraw(canvas)
 
         var paint: Paint = myNeuturalBoxPaint
-        var paintValue: Int = 0
+        var paintValue = 0
 
         val viewWidth: Float = width.toFloat()
         val viewHeight: Float = height.toFloat()
@@ -181,7 +177,6 @@ class DotsAndBoxesGameView : View
                     canvas.drawCircle(cx, cy, gridElementRadius / 2, myDotPaint)
                 }
                 //If the row number is even, but the gridX number is odd, then the grid element is a horizontal line
-                //else if((row % 2 == 0) && (gridX % 2 != 0))
                 else if(myGameInstance.myLines[gridX, gridY].isHorizontal())
                 {
                     // Calculate the co-ordinates of the horizontal line
@@ -189,7 +184,6 @@ class DotsAndBoxesGameView : View
                     val topY = (maxGridElementDiameter * gridY) + ((maxGridElementDiameter / 2) - (maxGridElementDiameter / 6))
                     val rightSideX = (maxGridElementDiameter * (gridX + 1))
                     val bottomY = (maxGridElementDiameter * gridY) + ((maxGridElementDiameter / 2) + (maxGridElementDiameter / 6))
-                    //(maxGridElementDiameter * gridX) + ((gridElementRadius) - (maxGridElementDiameter * 0.15f))
 
                     if(myGameInstance.myLines[gridX, gridY].isDrawn)
                     {

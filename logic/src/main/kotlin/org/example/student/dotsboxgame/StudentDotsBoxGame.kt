@@ -78,9 +78,9 @@ class StudentDotsBoxGame(
     }
 
     //A list of all of the un-drawn lines of the game, and their coordinates on the grid
-    var unDrawnLines = createDrawnLines()
+    private var unDrawnLines = createDrawnLines()
 
-    fun createDrawnLines(): MutableList<MutableList<Pair<Int, Int>>> {
+    private fun createDrawnLines(): MutableList<MutableList<Pair<Int, Int>>> {
         val retVal = mutableListOf<MutableList<Pair<Int, Int>>>()
         //The 2D array is filled with zeroes, indicating that none of the lines have been drawn yet
         for (gridX in 0 until gridWidth) {
@@ -389,7 +389,7 @@ class StudentDotsBoxGame(
     }
 
     class NamedHumanPlayer(recName: String) : HumanPlayer() {
-        public var name: String = ""
+        var name: String = ""
             get() {
                 return field
             }
