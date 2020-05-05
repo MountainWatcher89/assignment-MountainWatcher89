@@ -60,7 +60,7 @@ class DotsAndBoxesGameView : View
         }
     }
 
-    //Instantiate the StudentDotsBoxGame class. The height and width values can be overridden
+    //Instantiate the StudentDotsBoxGame class. Values can be overridden.
     var myGameInstance: StudentDotsBoxGame =
         StudentDotsBoxGame(3, 3,
                            listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
@@ -127,7 +127,7 @@ class DotsAndBoxesGameView : View
         }
 
         myTextPaint = Paint().apply {
-            textAlign = Paint.Align.CENTER
+            textAlign = Paint.Align.LEFT
             textSize = 25.toFloat()
             typeface = Typeface.SANS_SERIF
             color = Color.BLACK
@@ -263,13 +263,13 @@ class DotsAndBoxesGameView : View
             {
                 canvas.drawText(
                     player.name + " score: " + scores[counter].toString(),
-                                (viewWidth / 2f), (viewHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
+                                20f, (viewHeight * 0.75f) + textSpace, myTextPaint)
             }
             else if(player is StudentDotsBoxGame.EasyAI)
             {
                 canvas.drawText(
                     player.name + " score: " + scores[counter].toString(),
-                                (viewWidth / 2f), (viewHeight.toFloat() * 0.75f) + textSpace, myTextPaint)
+                                20f, (viewHeight * 0.75f) + textSpace, myTextPaint)
             }
             counter++
             textSpace = textSpace + 60
