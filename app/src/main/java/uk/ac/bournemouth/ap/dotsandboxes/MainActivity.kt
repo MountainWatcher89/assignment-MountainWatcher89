@@ -25,17 +25,8 @@ class MainActivity() : AppCompatActivity() {
 
         myGameView = DotsAndBoxesGameView(this)
 
-        //Puts the grid on its side, if it is taller than it is wide, for better text readability
-        if(width < height)
-        {
-            myGameView.myGameInstance = StudentDotsBoxGame(height, width,
+        myGameView.myGameInstance = StudentDotsBoxGame(width, height,
                                                            listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
-        }
-        else
-        {
-            myGameView.myGameInstance = StudentDotsBoxGame(width, height,
-                                                           listOf(StudentDotsBoxGame.NamedHumanPlayer("Player 1"), StudentDotsBoxGame.EasyAI("Computer 1")))
-        }
 
         setContentView(myGameView)
     }

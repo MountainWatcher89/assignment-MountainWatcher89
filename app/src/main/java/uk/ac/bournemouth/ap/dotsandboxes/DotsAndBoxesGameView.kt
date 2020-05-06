@@ -159,13 +159,16 @@ class DotsAndBoxesGameView : View
         else
             maxGridElementDiameter = diameterY
 
-
+        //Reduces the size of the grid
         if(gridWidth < gridHeight)
         {
             maxGridElementDiameter *= 0.75f
+            myTextPaint.textSize = maxGridElementDiameter / 2
         }
-
-        myTextPaint.textSize = maxGridElementDiameter / 2
+        else
+        {
+            myTextPaint.textSize = maxGridElementDiameter
+        }
 
         // Draw the game board
         canvas.drawRect(0.toFloat(), 0.toFloat(), viewWidth, viewHeight, myBackgroundGridPaint)
