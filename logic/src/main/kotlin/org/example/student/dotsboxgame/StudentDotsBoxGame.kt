@@ -218,7 +218,7 @@ class StudentDotsBoxGame(
 
     fun tryToDrawLine(recLineX: Int, recLineY: Int)
     {
-        if(!myLines[recLineY,  recLineY].isDrawn)
+        if(!myLines[recLineX,  recLineY].isDrawn)
         {
             myLines[recLineX, recLineY].drawLine()
         }

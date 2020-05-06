@@ -128,13 +128,15 @@ class DotsAndBoxesGameView : View
 
         myTextPaint = Paint().apply {
             textAlign = Paint.Align.LEFT
-            textSize = 25.toFloat()
+            textSize = 50f
             typeface = Typeface.SANS_SERIF
             color = Color.BLACK
         }
 
         myGameInstance.setGameChangeListener(myGameChangeListenerImp)
         myGameInstance.setGameOverListener(myGameOverListenerImp)
+
+
     }
 
     override fun onDraw(canvas: Canvas)
@@ -149,7 +151,7 @@ class DotsAndBoxesGameView : View
 
         val diameterX: Float = viewWidth / gridWidth.toFloat()
         //There needs to be some room for the text that displays the game information
-        val diameterY: Float = viewHeight / (gridHeight.toFloat() * 0.75f)
+        val diameterY: Float = viewHeight / gridHeight.toFloat()
 
         // Choose the smallest of the two
         if (diameterX < diameterY)
@@ -157,15 +159,23 @@ class DotsAndBoxesGameView : View
         else
             maxGridElementDiameter = diameterY
 
+
+        if(gridWidth < gridHeight)
+        {
+            maxGridElementDiameter *= 0.75f
+        }
+
+        myTextPaint.textSize = maxGridElementDiameter / 2
+
         // Draw the game board
         canvas.drawRect(0.toFloat(), 0.toFloat(), viewWidth, viewHeight, myBackgroundGridPaint)
 
         val gridElementRadius = maxGridElementDiameter / 2
 
         //Draw grid elements on the game board
-        for(gridX in 0 until gridHeight)
+        for(gridX in 0 until gridWidth)
         {
-            for(gridY in 0 until gridWidth)
+            for(gridY in 0 until gridHeight)
             {
 
                 //If both the row and gridX are even, the grid element is a dot
@@ -254,7 +264,7 @@ class DotsAndBoxesGameView : View
         }
 
         //Draw the game text that displays all player scores
-        var textSpace = 30
+        var textSpace = 10
         var counter = 0
         val scores = myGameInstance.getScores()
         for(player in players)
@@ -272,7 +282,7 @@ class DotsAndBoxesGameView : View
                                 20f, (viewHeight * 0.75f) + textSpace, myTextPaint)
             }
             counter++
-            textSpace = textSpace + 60
+            textSpace = textSpace + 50
         }
 
         if(myGameInstance.isFinished)
@@ -284,12 +294,13 @@ class DotsAndBoxesGameView : View
                 {
                     canvas.drawText(
                         (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
-                        (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                        (width.toFloat() / 4f), viewHeight.toFloat() - 30
+                        , myTextPaint)
                 }
                 else
                 {
                     canvas.drawText("It's a draw!",
-                        (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                        (width.toFloat() / 4f), viewHeight.toFloat() - 30, myTextPaint)
                 }
 
             }
@@ -299,12 +310,12 @@ class DotsAndBoxesGameView : View
                 {
                     canvas.drawText(
                         (winningPlayer as StudentDotsBoxGame.EasyAI).name + " is the winner!",
-                        (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                        (width.toFloat() / 4f), viewHeight.toFloat() - 30, myTextPaint)
                 }
                 else
                 {
                     canvas.drawText("It's a draw!",
-                                    (width.toFloat() / 2f), viewHeight.toFloat() - 30, myTextPaint)
+                                    (width.toFloat() / 4f), viewHeight.toFloat() - 30, myTextPaint)
                 }
             }
         }
