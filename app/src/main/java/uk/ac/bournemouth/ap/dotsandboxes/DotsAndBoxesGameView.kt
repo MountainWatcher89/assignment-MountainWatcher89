@@ -159,16 +159,22 @@ class DotsAndBoxesGameView : View
         else
             maxGridElementDiameter = diameterY
 
-        //Reduces the size of the grid
+        //Sets the size of the grid and text so that they do not overlap
+
         if(gridWidth < gridHeight)
         {
             maxGridElementDiameter *= 0.75f
+
             myTextPaint.textSize = maxGridElementDiameter / 2
+
         }
         else
         {
-            myTextPaint.textSize = maxGridElementDiameter
+            myTextPaint.textSize = viewHeight / 20
         }
+
+
+
 
         // Draw the game board
         canvas.drawRect(0.toFloat(), 0.toFloat(), viewWidth, viewHeight, myBackgroundGridPaint)
@@ -267,7 +273,7 @@ class DotsAndBoxesGameView : View
         }
 
         //Draw the game text that displays all player scores
-        var textSpace = 10
+        var textSpace = viewHeight / 20
         var counter = 0
         val scores = myGameInstance.getScores()
         for(player in players)
@@ -285,7 +291,7 @@ class DotsAndBoxesGameView : View
                                 20f, (viewHeight * 0.75f) + textSpace, myTextPaint)
             }
             counter++
-            textSpace = textSpace + 50
+            textSpace = textSpace + textSpace
         }
 
         if(myGameInstance.isFinished)
@@ -297,7 +303,7 @@ class DotsAndBoxesGameView : View
                 {
                     canvas.drawText(
                         (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
-                        (width.toFloat() / 4f), viewHeight.toFloat() - 30
+                        (width.toFloat() / 4f), viewHeight.toFloat() - textSpace
                         , myTextPaint)
                 }
                 else
