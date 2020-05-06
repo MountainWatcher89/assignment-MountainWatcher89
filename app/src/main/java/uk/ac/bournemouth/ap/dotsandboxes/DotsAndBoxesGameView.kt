@@ -278,18 +278,10 @@ class DotsAndBoxesGameView : View
         val scores = myGameInstance.getScores()
         for(player in players)
         {
-            if(player is StudentDotsBoxGame.NamedHumanPlayer)
-            {
-                canvas.drawText(
-                    player.name + " score: " + scores[counter].toString(),
-                    maxGridElementDiameter, (viewHeight * 0.75f) + textSpace, myTextPaint)
-            }
-            else if(player is StudentDotsBoxGame.EasyAI)
-            {
-                canvas.drawText(
-                    player.name + " score: " + scores[counter].toString(),
-                    maxGridElementDiameter, (viewHeight * 0.75f) + textSpace, myTextPaint)
-            }
+
+            canvas.drawText(
+                (player as StudentDotsBoxGame.namedPlayer).getName() + " score: " + scores[counter].toString(),
+                maxGridElementDiameter, (viewHeight * 0.75f) + textSpace, myTextPaint)
             counter++
             textSpace = textSpace + textSpace
         }
@@ -297,36 +289,20 @@ class DotsAndBoxesGameView : View
         if(myGameInstance.isFinished)
         {
             winningPlayer = myGameInstance.getWinner()
-            if(winningPlayer is StudentDotsBoxGame.NamedHumanPlayer)
-            {
-                if(!myGameInstance.checkForDraw())
-                {
-                    canvas.drawText(
-                        (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
-                        maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter
-                        , myTextPaint)
-                }
-                else
-                {
-                    canvas.drawText("It's a draw!",
-                                    maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
-                }
 
-            }
-            else if(myGameInstance.getWinner() is StudentDotsBoxGame.EasyAI)
+            if(!myGameInstance.checkForDraw())
             {
-                if(!myGameInstance.checkForDraw())
-                {
-                    canvas.drawText(
-                        (winningPlayer as StudentDotsBoxGame.EasyAI).name + " is the winner!",
-                        maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
-                }
-                else
-                {
-                    canvas.drawText("It's a draw!",
-                                    maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
-                }
+                canvas.drawText(
+                    (winningPlayer as StudentDotsBoxGame.namedPlayer).getName() + " is the winner!",
+                    maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
             }
+            else
+            {
+                canvas.drawText("It's a draw!",
+                                maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
+            }
+
+
         }
 
     }

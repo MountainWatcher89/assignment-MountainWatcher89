@@ -342,6 +342,21 @@ class StudentDotsBoxGame(
                 (myLines[boxX + 1, boxY])
                           )
 
+
+        override var hasBoundingLines: Boolean = false
+        get()
+        {
+            field = false
+
+            for (line in boundingLines) {
+                if (line.isDrawn) {
+                    field = true
+                }
+            }
+
+            return field
+        }
+
         fun checkBoxCompletion(): Boolean {
             //If all surrounding lines of the box has been drawn, the box now belongs to the player
             //that drew the current line
@@ -362,11 +377,17 @@ class StudentDotsBoxGame(
         }
     }
 
-    class EasyAI(val recName: String) : ComputerPlayer() {
-        public var name: String = ""
+    class EasyAI(val recName: String) : ComputerPlayer(), namedPlayer {
+        public var playerName: String = ""
 
         init {
-            this.name = recName
+            this.playerName = recName
+        }
+
+        override fun getName(): String
+        {
+            val name = playerName
+            return name
         }
 
         override fun makeMove(gameRef: DotsAndBoxesGame) {
@@ -388,18 +409,62 @@ class StudentDotsBoxGame(
         }
     }
 
-    class NamedHumanPlayer(recName: String) : HumanPlayer() {
-        var name: String = ""
-            get() {
-                return field
-            }
-            set(value) {
-                field = value
-            }
+    class MediumAI(val recName: String) : ComputerPlayer(), namedPlayer {
+        public var playerName: String = ""
 
         init {
-            this.name = recName
+            this.playerName = recName
         }
+
+        override fun getName(): String
+        {
+            val name = playerName
+            return name
+        }
+
+        override fun makeMove(gameRef: DotsAndBoxesGame) {
+
+            for(box in gameRef.boxes)
+            {
+                if(box.hasBoundingLines)
+                {
+                    
+                }
+            }
+            val line = gameRef.lines.filter { !it.isDrawn }.random()
+            line.drawLine()
+
+            /*
+               if (gameRef is StudentDotsBoxGame) {
+                //Select a random column of the grid
+                val chosenColumn: MutableList<Pair<Int, Int>> = gameRef.unDrawnLines.random()
+
+                //Select a random line from the column
+                val chosenColumnLine = chosenColumn.random()
+
+                //Invoke the playTurnToken method using the selected line
+                gameRef.playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
+            }*/
+        }
+    }
+
+    class NamedHumanPlayer(recName: String) : HumanPlayer(), namedPlayer {
+        var playerName: String = ""
+
+        init {
+            this.playerName = recName
+        }
+
+        override fun getName(): String
+        {
+            val name = playerName
+            return name
+        }
+    }
+
+    interface  namedPlayer
+    {
+        fun getName(): String
     }
 
 }

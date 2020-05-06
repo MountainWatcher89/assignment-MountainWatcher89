@@ -145,6 +145,8 @@ interface DotsAndBoxesGame {
          * A collection of the lines that surround the box.
          */
         val boundingLines: Iterable<Line>
+
+        val hasBoundingLines: Boolean
     }
 
     /**
