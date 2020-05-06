@@ -282,13 +282,13 @@ class DotsAndBoxesGameView : View
             {
                 canvas.drawText(
                     player.name + " score: " + scores[counter].toString(),
-                                20f, (viewHeight * 0.75f) + textSpace, myTextPaint)
+                    maxGridElementDiameter, (viewHeight * 0.75f) + textSpace, myTextPaint)
             }
             else if(player is StudentDotsBoxGame.EasyAI)
             {
                 canvas.drawText(
                     player.name + " score: " + scores[counter].toString(),
-                                20f, (viewHeight * 0.75f) + textSpace, myTextPaint)
+                    maxGridElementDiameter, (viewHeight * 0.75f) + textSpace, myTextPaint)
             }
             counter++
             textSpace = textSpace + textSpace
@@ -303,13 +303,13 @@ class DotsAndBoxesGameView : View
                 {
                     canvas.drawText(
                         (winningPlayer as StudentDotsBoxGame.NamedHumanPlayer).name + " is the winner!",
-                        (width.toFloat() / 4f), viewHeight.toFloat() - textSpace
+                        maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter
                         , myTextPaint)
                 }
                 else
                 {
                     canvas.drawText("It's a draw!",
-                        (width.toFloat() / 4f), viewHeight.toFloat() - 30, myTextPaint)
+                                    maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
                 }
 
             }
@@ -319,12 +319,12 @@ class DotsAndBoxesGameView : View
                 {
                     canvas.drawText(
                         (winningPlayer as StudentDotsBoxGame.EasyAI).name + " is the winner!",
-                        (width.toFloat() / 4f), viewHeight.toFloat() - 30, myTextPaint)
+                        maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
                 }
                 else
                 {
                     canvas.drawText("It's a draw!",
-                                    (width.toFloat() / 4f), viewHeight.toFloat() - 30, myTextPaint)
+                                    maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
                 }
             }
         }
