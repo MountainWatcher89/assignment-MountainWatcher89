@@ -2,7 +2,7 @@ Functionality extensions:
 
 Logic: 
 1. Up to 4 players can play the game. 
-2. Multiple human playerscan play the game (this has to be set in the code). 
+2. Multiple human players can play the game (this has to be set in the code). 
 3. Text is sized depending on the dimensions of the grid displayed.
 4. Computer players can be of several types, each with its own level of difficulty.
 
