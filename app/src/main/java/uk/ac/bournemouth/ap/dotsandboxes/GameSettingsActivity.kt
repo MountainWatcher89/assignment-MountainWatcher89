@@ -15,9 +15,10 @@ class GameSettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListene
     lateinit var btn_start_game: Button
     lateinit var bar_width: SeekBar
     lateinit var bar_height: SeekBar
+    lateinit var bar_difficulty: SeekBar
     lateinit var widthText: TextView
     lateinit var heightText: TextView
-
+    lateinit var aiDificultyText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -25,17 +26,20 @@ class GameSettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListene
 
         seekBarWidth.setOnSeekBarChangeListener(this)
         seekBarHeight.setOnSeekBarChangeListener(this)
+        seekBarAIDifficulty.setOnSeekBarChangeListener(this)
 
         bar_width = findViewById(R.id.seekBarWidth)
         bar_height = findViewById(R.id.seekBarHeight)
+        bar_difficulty = findViewById(R.id.seekBarAIDifficulty)
         widthText = findViewById(R.id.text_width_label)
         heightText = findViewById(R.id.text_height_label)
+        aiDificultyText = findViewById(R.id.text_ai_difficulty_label)
         btn_start_game = findViewById(R.id.btn_start_game)
 
         btn_start_game.setOnClickListener()
         {
             val intent = Intent(this, MainActivity::class.java)
-            intent.putExtra("ID_EXTRA", intArrayOf(bar_width.progress + 2, bar_height.progress + 2))
+            intent.putExtra("ID_EXTRA", intArrayOf(bar_width.progress + 2, bar_height.progress + 2, bar_difficulty.progress))
 
             startActivity(intent)
         }
@@ -48,6 +52,21 @@ class GameSettingsActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListene
         {
             R.id.seekBarWidth -> widthText.text = "Grid width: ${bar_width.progress + 2}"
             R.id.seekBarHeight -> heightText.text = "Grid height ${bar_height.progress + 2}"
+            R.id.seekBarAIDifficulty ->
+                if(bar_difficulty.progress == 0){
+                aiDificultyText.text = "AI difficulty: Easy"
+            }
+            else if(bar_difficulty.progress == 1)
+            {
+                aiDificultyText.text = "AI difficulty: Medium"
+            }
+                else if(bar_difficulty.progress == 2) {
+                    aiDificultyText.text = "AI difficulty: Hard"
+                }
+            else {
+                    aiDificultyText.text = "Error"
+                }
+
         }
 
 /*

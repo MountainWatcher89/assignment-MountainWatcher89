@@ -343,7 +343,7 @@ class StudentDotsBoxGame(
                           )
 
 
-        override var hasBoundingLines: Boolean = false
+        override var isPartiallyComplete: Boolean = false
         get()
         {
             field = false
@@ -351,6 +351,10 @@ class StudentDotsBoxGame(
             for (line in boundingLines) {
                 if (line.isDrawn) {
                     field = true
+                }
+                if(this.boundingLines.all{it.isDrawn})
+                {
+                    field = false
                 }
             }
 
@@ -395,22 +399,11 @@ class StudentDotsBoxGame(
             val line = gameRef.lines.filter { !it.isDrawn }.random()
             line.drawLine()
 
-            /*
-               if (gameRef is StudentDotsBoxGame) {
-                //Select a random column of the grid
-                val chosenColumn: MutableList<Pair<Int, Int>> = gameRef.unDrawnLines.random()
-
-                //Select a random line from the column
-                val chosenColumnLine = chosenColumn.random()
-
-                //Invoke the playTurnToken method using the selected line
-                gameRef.playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
-            }*/
         }
     }
 
     class MediumAI(val recName: String) : ComputerPlayer(), namedPlayer {
-        public var playerName: String = ""
+        var playerName: String = ""
 
         init {
             this.playerName = recName
@@ -424,27 +417,55 @@ class StudentDotsBoxGame(
 
         override fun makeMove(gameRef: DotsAndBoxesGame) {
 
-            for(box in gameRef.boxes)
+            val line: DotsAndBoxesGame.Line
+
+            if(!gameRef.boxes.none { it.isPartiallyComplete })
             {
-                if(box.hasBoundingLines)
-                {
-                    
-                }
+                //Get a box from the game grid that already has some, but not all, lines around it drawn
+                val box = gameRef.boxes.filter { it.isPartiallyComplete }.random()
+                //Select one of the undrawn lines of the chosen box
+                line = box.boundingLines.filter { !it.isDrawn }.random()
+
             }
-            val line = gameRef.lines.filter { !it.isDrawn }.random()
+            else
+            {
+                line = gameRef.lines.filter { !it.isDrawn }.random()
+            }
             line.drawLine()
+        }
+    }
 
-            /*
-               if (gameRef is StudentDotsBoxGame) {
-                //Select a random column of the grid
-                val chosenColumn: MutableList<Pair<Int, Int>> = gameRef.unDrawnLines.random()
+    class HardAI(val recName: String) : ComputerPlayer(), namedPlayer {
+        var playerName: String = ""
 
-                //Select a random line from the column
-                val chosenColumnLine = chosenColumn.random()
+        init {
+            this.playerName = recName
+        }
 
-                //Invoke the playTurnToken method using the selected line
-                gameRef.playTurnToken(chosenColumnLine.first, chosenColumnLine.second)
-            }*/
+        override fun getName(): String
+        {
+            val name = playerName
+            return name
+        }
+
+        override fun makeMove(gameRef: DotsAndBoxesGame) {
+
+            val line: DotsAndBoxesGame.Line
+
+            //Try to find a box that has three lines already drawn around it
+            if(!gameRef.boxes.none { it.boundingLines.count { it.isDrawn } == 3})
+            {
+                //Get a box from the game grid that already has three lines around it drawn
+                val box = gameRef.boxes.filter { it.boundingLines.count { it.isDrawn } == 3}.random()
+                //Select the undrawn line of the chosen box
+                line = box.boundingLines.filter { !it.isDrawn }.random()
+
+            }
+            else
+            {
+                line = gameRef.lines.filter { !it.isDrawn }.random()
+            }
+            line.drawLine()
         }
     }
 

@@ -146,7 +146,7 @@ interface DotsAndBoxesGame {
          */
         val boundingLines: Iterable<Line>
 
-        val hasBoundingLines: Boolean
+        val isPartiallyComplete: Boolean
     }
 
     /**

@@ -294,12 +294,12 @@ class DotsAndBoxesGameView : View
             {
                 canvas.drawText(
                     (winningPlayer as StudentDotsBoxGame.namedPlayer).getName() + " is the winner!",
-                    maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
+                    maxGridElementDiameter, viewHeight.toFloat() - myTextPaint.textSize, myTextPaint)
             }
             else
             {
                 canvas.drawText("It's a draw!",
-                                maxGridElementDiameter, viewHeight.toFloat() - maxGridElementDiameter, myTextPaint)
+                                maxGridElementDiameter, viewHeight.toFloat() - myTextPaint.textSize, myTextPaint)
             }
 
 
